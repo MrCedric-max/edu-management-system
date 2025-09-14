@@ -286,12 +286,22 @@ class EduManageApp {
     async handleRegister(e) {
         e.preventDefault();
         
-        const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData);
+        // Get form values directly
+        const data = {
+            firstName: document.getElementById('reg-firstname').value,
+            lastName: document.getElementById('reg-lastname').value,
+            email: document.getElementById('reg-email').value,
+            password: document.getElementById('reg-password').value,
+            role: document.getElementById('reg-role').value,
+            subsystem: this.currentSubsystem,
+            language: this.currentLanguage
+        };
         
-        // Add subsystem information
-        data.subsystem = this.currentSubsystem;
-        data.language = this.currentLanguage;
+        // Add parent-specific data if role is parent
+        if (data.role === 'parent') {
+            data.parentType = document.getElementById('parent-type').value;
+            data.schoolId = document.getElementById('school-selection').value;
+        }
 
         try {
             const response = await fetch(`${this.apiBaseUrl}/auth/register`, {

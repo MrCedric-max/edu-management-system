@@ -27,6 +27,23 @@ class EduManageApp {
         this.initializeLanguageSystem();
     }
 
+    // Helper function for authenticated API calls
+    async apiCall(endpoint, options = {}) {
+        const headers = {
+            'Content-Type': 'application/json',
+            ...options.headers
+        };
+        
+        if (this.token) {
+            headers['Authorization'] = `Bearer ${this.token}`;
+        }
+        
+        return fetch(`${this.apiBaseUrl}${endpoint}`, {
+            ...options,
+            headers
+        });
+    }
+
     initializeLanguageSystem() {
         // Show language modal on first visit
         if (!localStorage.getItem('languageSelected')) {
@@ -231,7 +248,7 @@ class EduManageApp {
 
     async loadSchools() {
         try {
-            const response = await fetch(`${this.apiBaseUrl}/schools`);
+            const response = await this.apiCall('/schools');
             const schools = await response.json();
             
             const select = document.getElementById('school-selection');
@@ -430,10 +447,10 @@ class EduManageApp {
         try {
             // Load dashboard statistics
             const [studentsRes, teachersRes, parentsRes, classesRes] = await Promise.all([
-                fetch(`${this.apiBaseUrl}/students`),
-                fetch(`${this.apiBaseUrl}/teachers`),
-                fetch(`${this.apiBaseUrl}/parents`),
-                fetch(`${this.apiBaseUrl}/classes`)
+                this.apiCall('/students'),
+                this.apiCall('/teachers'),
+                this.apiCall('/parents'),
+                this.apiCall('/classes')
             ]);
 
             const students = await studentsRes.json();

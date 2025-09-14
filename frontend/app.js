@@ -6,6 +6,8 @@ class EduManageApp {
             this.apiBaseUrl = 'http://localhost:3001/api';
         } else if (window.location.origin.includes('3001')) {
             this.apiBaseUrl = '/api';
+        } else if (window.location.origin.includes('netlify.app')) {
+            this.apiBaseUrl = 'https://web-production-e5f3c.up.railway.app/api';
         } else {
             this.apiBaseUrl = '/api';
         }

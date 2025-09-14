@@ -4,9 +4,10 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "https://your-app.railway.app/api/:splat"
+  to = "https://web-production-e5f3c.up.railway.app/api/:splat"
   status = 200
   force = true
+  headers = {X-From = "Netlify"}
 
 [[redirects]]
   from = "/*"

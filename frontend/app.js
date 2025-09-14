@@ -74,34 +74,64 @@ class EduManageApp {
         });
 
         // Auth forms
-        document.getElementById('loginForm').addEventListener('submit', this.handleLogin.bind(this));
-        document.getElementById('registerForm').addEventListener('submit', this.handleRegister.bind(this));
-        document.getElementById('logout-btn').addEventListener('click', this.handleLogout.bind(this));
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const logoutBtn = document.getElementById('logout-btn');
+        
+        if (loginForm) {
+            loginForm.addEventListener('submit', this.handleLogin.bind(this));
+        }
+        if (registerForm) {
+            registerForm.addEventListener('submit', this.handleRegister.bind(this));
+        }
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', this.handleLogout.bind(this));
+        }
 
         // Role-based form changes
-        document.getElementById('reg-role').addEventListener('change', this.handleRoleChange.bind(this));
-        document.getElementById('parent-type').addEventListener('change', this.handleParentTypeChange.bind(this));
+        const regRole = document.getElementById('reg-role');
+        const parentType = document.getElementById('parent-type');
+        if (regRole) {
+            regRole.addEventListener('change', this.handleRoleChange.bind(this));
+        }
+        if (parentType) {
+            parentType.addEventListener('change', this.handleParentTypeChange.bind(this));
+        }
 
         // Navigation
-        document.getElementById('nav-toggle').addEventListener('click', this.toggleMobileMenu.bind(this));
+        const navToggle = document.getElementById('nav-toggle');
+        if (navToggle) {
+            navToggle.addEventListener('click', this.toggleMobileMenu.bind(this));
+        }
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', this.handleNavigation.bind(this));
         });
 
         // Action buttons
-        document.getElementById('add-student-btn').addEventListener('click', () => this.showAddStudentModal());
-        document.getElementById('add-teacher-btn').addEventListener('click', () => this.showAddTeacherModal());
-        document.getElementById('add-parent-btn').addEventListener('click', () => this.showAddParentModal());
-        document.getElementById('add-class-btn').addEventListener('click', () => this.showAddClassModal());
-        document.getElementById('add-grade-btn').addEventListener('click', () => this.showAddGradeModal());
-        document.getElementById('add-quiz-btn').addEventListener('click', () => this.showAddQuizModal());
-        document.getElementById('add-lesson-plan-btn').addEventListener('click', () => this.showAddLessonPlanModal());
-        document.getElementById('add-school-btn').addEventListener('click', () => this.showAddSchoolModal());
-        document.getElementById('upload-file-btn').addEventListener('click', () => this.toggleFileUpload());
-        document.getElementById('mark-all-read-btn').addEventListener('click', () => this.markAllNotificationsRead());
+        const actionButtons = [
+            'add-student-btn', 'add-teacher-btn', 'add-parent-btn', 'add-class-btn',
+            'add-grade-btn', 'add-quiz-btn', 'add-lesson-plan-btn', 'add-school-btn',
+            'upload-file-btn', 'mark-all-read-btn'
+        ];
+        
+        actionButtons.forEach(buttonId => {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.addEventListener('click', () => {
+                    const methodName = buttonId.replace('-btn', '').replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+                    const method = this[`show${methodName.charAt(0).toUpperCase() + methodName.slice(1)}Modal`] || 
+                                 this[methodName] || 
+                                 (() => this.showAlert(`${methodName} - Coming soon!`, 'info'));
+                    method.call(this);
+                });
+            }
+        });
 
         // Modal close
-        document.querySelector('.close').addEventListener('click', this.closeModal.bind(this));
+        const closeBtn = document.querySelector('.close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', this.closeModal.bind(this));
+        }
         window.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) {
                 this.closeModal();

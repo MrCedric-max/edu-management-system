@@ -19,7 +19,7 @@ const checkDatabase = (req, res, next) => {
 const router = express.Router();
 
 // Register new user
-router.post('/register', [
+router.post('/register', checkDatabase, [
   body('email').isEmail().normalizeEmail(),
   body('password').isLength({ min: 6 }),
   body('firstName').trim().isLength({ min: 1 }),
@@ -53,6 +53,10 @@ router.post('/register', [
       'INSERT INTO users (email, password_hash, first_name, last_name, role, phone) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, email, first_name, last_name, role, created_at',
       [email, passwordHash, firstName, lastName, role, phone]
     );
+
+    if (!result || !result.rows || result.rows.length === 0) {
+      return res.status(500).json({ error: 'Failed to create user' });
+    }
 
     const user = result.rows[0];
 

@@ -32,7 +32,7 @@ router.post('/register', checkDatabase, [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { email, password, firstName, lastName, role, phone } = req.body;
+    const { email, password, firstName, lastName, role, phone = '+237000000000' } = req.body;
 
     // Check if user already exists
     const existingUser = await db.query(
@@ -82,7 +82,15 @@ router.post('/register', checkDatabase, [
 
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      body: req.body
+    });
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+    });
   }
 });
 

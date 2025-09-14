@@ -65,14 +65,14 @@ const authorize = (...roles) => {
   };
 };
 
-// Admin only middleware
-const adminOnly = authorize('admin');
+// Admin only middleware (includes super_admin and school_admin)
+const adminOnly = authorize('admin', 'super_admin', 'school_admin');
 
-// Teacher or Admin middleware
-const teacherOrAdmin = authorize('teacher', 'admin');
+// Teacher or Admin middleware (includes all admin types)
+const teacherOrAdmin = authorize('teacher', 'admin', 'super_admin', 'school_admin');
 
-// Student, Teacher, or Admin middleware
-const studentTeacherOrAdmin = authorize('student', 'teacher', 'admin');
+// Student, Teacher, or Admin middleware (includes all admin types)
+const studentTeacherOrAdmin = authorize('student', 'teacher', 'admin', 'super_admin', 'school_admin');
 
 module.exports = {
   auth,

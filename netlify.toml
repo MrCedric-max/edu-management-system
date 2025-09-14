@@ -1,0 +1,14 @@
+[build]
+  publish = "frontend"
+  command = "echo 'Frontend is already built - static files'"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://your-backend-app.herokuapp.com/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

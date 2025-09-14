@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Management System - Cameroon</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="description" content="A comprehensive bilingual educational management system for Cameroon's Francophone and Anglophone education subsystems">
+    <meta name="keywords" content="education, management, school, students, teachers, grades, cameroon, francophone, anglophone">
+</head>
+<body>
+    <!-- Language Selection Modal -->
+    <div id="language-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-translate="welcome">Welcome to Educational Management System</h2>
+                <p data-translate="select-language">Please select your preferred language and education subsystem</p>
+            </div>
+            <div class="language-options">
+                <div class="language-card" data-lang="fr">
+                    <div class="flag-icon">🇫🇷</div>
+                    <h3>Français</h3>
+                    <p data-translate="francophone-desc">Système éducatif francophone du Cameroun</p>
+                    <div class="subsystem-info">
+                        <h4>Classes: SIL, CP, CE1, CE2, CM1, CM2</h4>
+                        <p data-translate="francophone-curriculum">Programme d'études francophone</p>
+                    </div>
+                </div>
+                <div class="language-card" data-lang="en">
+                    <div class="flag-icon">🇬🇧</div>
+                    <h3>English</h3>
+                    <p data-translate="anglophone-desc">Anglophone education subsystem of Cameroon</p>
+                    <div class="subsystem-info">
+                        <h4>Classes: Class 1, Class 2, Class 3, Class 4, Class 5, Class 6</h4>
+                        <p data-translate="anglophone-curriculum">Anglophone curriculum</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login/Register Page -->
+    <div id="auth-page" class="auth-page">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span data-translate="app-title">EduManage Cameroon</span>
+                </div>
+                <div class="language-switcher">
+                    <button id="lang-switch" class="lang-btn">
+                        <i class="fas fa-globe"></i>
+                        <span id="current-lang">EN</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="tab-btn active" data-tab="login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span data-translate="login">Login</span>
+                </button>
+                <button class="tab-btn" data-tab="register">
+                    <i class="fas fa-user-plus"></i>
+                    <span data-translate="register">Register</span>
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form active">
+                <h2 data-translate="login-title">Login to Your Account</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="login-email" data-translate="email">Email Address</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password" data-translate="password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-role" data-translate="user-type">User Type</label>
+                        <select id="login-role" required>
+                            <option value="" data-translate="select-role">Select your role</option>
+                            <option value="teacher" data-translate="teacher">Teacher</option>
+                            <option value="parent" data-translate="parent">Parent</option>
+                            <option value="school_admin" data-translate="school-admin">School Administrator</option>
+                            <option value="super_admin" data-translate="super-admin">Super Administrator</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-translate="login-btn">Login</button>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="auth-form">
+                <h2 data-translate="register-title">Create New Account</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="reg-role" data-translate="user-type">User Type</label>
+                        <select id="reg-role" required>
+                            <option value="" data-translate="select-role">Select your role</option>
+                            <option value="teacher" data-translate="teacher">Teacher</option>
+                            <option value="parent" data-translate="parent">Parent</option>
+                            <option value="school_admin" data-translate="school-admin">School Administrator</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-firstname" data-translate="first-name">First Name</label>
+                        <input type="text" id="reg-firstname" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-lastname" data-translate="last-name">Last Name</label>
+                        <input type="text" id="reg-lastname" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email" data-translate="email">Email Address</label>
+                        <input type="email" id="reg-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password" data-translate="password">Password</label>
+                        <input type="password" id="reg-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-confirm-password" data-translate="confirm-password">Confirm Password</label>
+                        <input type="password" id="reg-confirm-password" required>
+                    </div>
+                    <div class="form-group" id="parent-type-group" style="display: none;">
+                        <label for="parent-type" data-translate="parent-type">Parent Type</label>
+                        <select id="parent-type">
+                            <option value="affiliated" data-translate="affiliated-parent">Affiliated Parent</option>
+                            <option value="non-affiliated" data-translate="non-affiliated-parent">Non-Affiliated Parent</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="school-selection-group" style="display: none;">
+                        <label for="school-selection" data-translate="select-school">Select School</label>
+                        <select id="school-selection">
+                            <option value="" data-translate="select-school">Select a school</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-translate="register-btn">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application (Hidden initially) -->
+    <div id="main-app" class="main-app" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span data-translate="app-title">EduManage</span>
+                </div>
+                <div class="nav-toggle" id="nav-toggle">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
+                <div class="nav-menu" id="nav-menu">
+                    <a href="#home" class="nav-link active" data-translate="home">Home</a>
+                    <a href="#dashboard" class="nav-link" data-translate="dashboard">Dashboard</a>
+                    <a href="#students" class="nav-link" data-translate="students">Students</a>
+                    <a href="#teachers" class="nav-link" data-translate="teachers">Teachers</a>
+                    <a href="#parents" class="nav-link" data-translate="parents">Parents</a>
+                    <a href="#classes" class="nav-link" data-translate="classes">Classes</a>
+                    <a href="#grades" class="nav-link" data-translate="grades">Grades</a>
+                    <a href="#quizzes" class="nav-link" data-translate="quizzes">Quizzes</a>
+                    <a href="#lesson-plans" class="nav-link" data-translate="lesson-plans">Lesson Plans</a>
+                    <a href="#files" class="nav-link" data-translate="files">Files</a>
+                    <a href="#notifications" class="nav-link" data-translate="notifications">Notifications</a>
+                    <a href="#schools" class="nav-link" data-translate="schools">Schools</a>
+                    <a href="#profile" class="nav-link" data-translate="profile">Profile</a>
+                    <button class="btn btn-outline" id="logout-btn" data-translate="logout">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home Section -->
+            <section id="home" class="section active">
+                <div class="container">
+                    <div class="welcome-section">
+                        <h1 data-translate="welcome-title">Welcome to EduManage Cameroon</h1>
+                        <p data-translate="welcome-desc">Comprehensive educational management system supporting both Francophone and Anglophone education subsystems</p>
+                        <div class="subsystem-info">
+                            <div class="subsystem-card" id="current-subsystem">
+                                <h3 data-translate="current-subsystem">Current Subsystem</h3>
+                                <p id="subsystem-name">English (Anglophone)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section">
+                <div class="container">
+                    <h2 data-translate="dashboard-title">Dashboard</h2>
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <i class="fas fa-users"></i>
+                            <h3 data-translate="total-students">Total Students</h3>
+                            <p id="total-students">0</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <h3 data-translate="total-teachers">Total Teachers</h3>
+                            <p id="total-teachers">0</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <i class="fas fa-home"></i>
+                            <h3 data-translate="total-parents">Total Parents</h3>
+                            <p id="total-parents">0</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <i class="fas fa-school"></i>
+                            <h3 data-translate="total-classes">Total Classes</h3>
+                            <p id="total-classes">0</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students Section -->
+            <section id="students" class="section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 data-translate="students-title">Students</h2>
+                        <button class="btn btn-primary" id="add-student-btn" data-translate="add-student">Add Student</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-translate="name">Name</th>
+                                    <th data-translate="class">Class</th>
+                                    <th data-translate="subsystem">Subsystem</th>
+                                    <th data-translate="parent">Parent</th>
+                                    <th data-translate="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table">
+                                <!-- Students will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Teachers Section -->
+            <section id="teachers" class="section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 data-translate="teachers-title">Teachers</h2>
+                        <button class="btn btn-primary" id="add-teacher-btn" data-translate="add-teacher">Add Teacher</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-translate="name">Name</th>
+                                    <th data-translate="subsystem">Subsystem</th>
+                                    <th data-translate="subjects">Subjects</th>
+                                    <th data-translate="classes">Classes</th>
+                                    <th data-translate="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teachers-table">
+                                <!-- Teachers will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Parents Section -->
+            <section id="parents" class="section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 data-translate="parents-title">Parents</h2>
+                        <button class="btn btn-primary" id="add-parent-btn" data-translate="add-parent">Add Parent</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-translate="name">Name</th>
+                                    <th data-translate="type">Type</th>
+                                    <th data-translate="school">School</th>
+                                    <th data-translate="children">Children</th>
+                                    <th data-translate="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="parents-table">
+                                <!-- Parents will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Classes Section -->
+            <section id="classes" class="section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 data-translate="classes-title">Classes</h2>
+                        <button class="btn btn-primary" id="add-class-btn" data-translate="add-class">Add Class</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-translate="class-name">Class Name</th>
+                                    <th data-translate="subsystem">Subsystem</th>
+                                    <th data-translate="teacher">Teacher</th>
+                                    <th data-translate="students">Students</th>
+                                    <th data-translate="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="classes-table">
+                                <!-- Classes will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Grades Section -->
+            <section id="grades" class="section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 data-translate="grades-title">Grades</h2>
+                        <button class="btn btn-primary" id="add-grade-btn" data-translate="add-grade">Add Grade</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-translate="student">Student</th>
+                                    <th data-translate="subject">Subject</th>
+                                    <th data-translate="grade">Grade</th>
+                                    <th data-translate="date">Date</th>
+                                    <th data-translate="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grades-table">
+                                <!-- Grades will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quizzes Section -->
+            <section id="quizzes" class="section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 data-translate="quizzes-title">Quizzes</h2>
+                        <button class="btn btn-primary" id="add-quiz-btn" data-translate="add-quiz">Add Quiz</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-translate="title">Title</th>
+                                    <th data-translate="subject">Subject</th>
+                                    <th data-translate="class">Class</th>
+                                    <th data-translate="subsystem">Subsystem</th>
+                                    <th data-translate="status">Status</th>
+                                    <th data-translate="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="quizzes-table">
+                                <!-- Quizzes will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lesson Plans Section -->
+            <section id="lesson-plans" class="section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 data-translate="lesson-plans-title">Lesson Plans</h2>
+                        <button class="btn btn-primary" id="add-lesson-plan-btn" data-translate="add-lesson-plan">Add Lesson Plan</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-translate="title">Title</th>
+                                    <th data-translate="subject">Subject</th>
+                                    <th data-translate="class">Class</th>
+                                    <th data-translate="subsystem">Subsystem</th>
+                                    <th data-translate="status">Status</th>
+                                    <th data-translate="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lesson-plans-table">
+                                <!-- Lesson plans will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Files Section -->
+            <section id="files" class="section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 data-translate="files-title">Files</h2>
+                        <button class="btn btn-primary" id="upload-file-btn" data-translate="upload-file">Upload File</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-translate="filename">Filename</th>
+                                    <th data-translate="type">Type</th>
+                                    <th data-translate="size">Size</th>
+                                    <th data-translate="subsystem">Subsystem</th>
+                                    <th data-translate="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="files-table">
+                                <!-- Files will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notifications Section -->
+            <section id="notifications" class="section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 data-translate="notifications-title">Notifications</h2>
+                        <button class="btn btn-primary" id="mark-all-read-btn" data-translate="mark-all-read">Mark All Read</button>
+                    </div>
+                    <div class="notifications-container" id="notifications-container">
+                        <!-- Notifications will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Schools Section -->
+            <section id="schools" class="section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 data-translate="schools-title">Schools</h2>
+                        <button class="btn btn-primary" id="add-school-btn" data-translate="add-school">Add School</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th data-translate="name">Name</th>
+                                    <th data-translate="subsystem">Subsystem</th>
+                                    <th data-translate="location">Location</th>
+                                    <th data-translate="students">Students</th>
+                                    <th data-translate="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="schools-table">
+                                <!-- Schools will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile" class="section">
+                <div class="container">
+                    <h2 data-translate="profile-title">Profile</h2>
+                    <div class="profile-container">
+                        <div class="profile-info">
+                            <h3 data-translate="user-info">User Information</h3>
+                            <p><strong data-translate="name">Name:</strong> <span id="profile-name">-</span></p>
+                            <p><strong data-translate="email">Email:</strong> <span id="profile-email">-</span></p>
+                            <p><strong data-translate="role">Role:</strong> <span id="profile-role">-</span></p>
+                            <p><strong data-translate="subsystem">Subsystem:</strong> <span id="profile-subsystem">-</span></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+    <script src="translations.js"></script>
+</body>
+</html>

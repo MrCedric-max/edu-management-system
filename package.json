@@ -1,0 +1,53 @@
+{
+  "name": "educational-management-system",
+  "version": "1.0.0",
+  "description": "A robust educational management system with PostgreSQL backend and vanilla frontend",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "build": "npm run build:frontend",
+    "build:frontend": "echo 'Frontend is already built - static files'",
+    "install:all": "npm install && cd backend && npm install",
+    "setup": "node scripts/setup.js",
+    "test": "node scripts/test.js",
+    "test:comprehensive": "node scripts/test-comprehensive.js",
+    "test:simple": "echo Testing system... && curl -s http://localhost:3001/health && echo Backend OK && curl -s http://localhost:3000 >nul && echo Frontend OK",
+    "deploy": "node scripts/deploy.js",
+    "deploy:heroku": "node scripts/deploy-heroku.js",
+    "deploy:netlify": "node scripts/deploy-netlify.js",
+    "deploy:all": "npm run deploy:heroku && npm run deploy:netlify",
+    "postinstall": "cd backend && npm install"
+  },
+  "keywords": [
+    "education",
+    "management",
+    "postgresql",
+    "nodejs",
+    "vanilla-js"
+  ],
+  "author": "Educational Management System",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "dotenv": "^16.3.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "express-validator": "^7.0.1",
+    "morgan": "^1.10.0",
+    "compression": "^1.7.4",
+    "express-rate-limit": "^7.1.5",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

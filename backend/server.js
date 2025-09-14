@@ -77,6 +77,29 @@ app.get('/api/test', (req, res) => {
   });
 });
 
+// Database setup endpoint (for initial setup)
+app.get('/api/setup-db', async (req, res) => {
+  try {
+    const fs = require('fs');
+    const schemaPath = path.join(__dirname, 'models/schema.sql');
+    const schema = fs.readFileSync(schemaPath, 'utf8');
+    
+    // Split by semicolon and execute each statement
+    const statements = schema.split(';').filter(stmt => stmt.trim());
+    
+    for (const statement of statements) {
+      if (statement.trim()) {
+        await db.query(statement);
+      }
+    }
+    
+    res.json({ message: 'Database schema created successfully!' });
+  } catch (error) {
+    console.error('Database setup error:', error);
+    res.status(500).json({ error: 'Failed to setup database schema' });
+  }
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

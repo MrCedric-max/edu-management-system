@@ -104,6 +104,72 @@ app.get('/api/test', (req, res) => {
   });
 });
 
+// Super admin creation endpoint (for initial setup)
+app.get('/api/create-super-admin', async (req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    
+    // Check if super admin already exists
+    const existingAdmin = await db.query(
+      'SELECT id FROM users WHERE role = $1',
+      ['super_admin']
+    );
+    
+    if (existingAdmin.rows.length > 0) {
+      return res.json({
+        message: 'Super admin already exists',
+        email: 'superadmin@edumanage.cm',
+        password: 'SuperAdmin2024!'
+      });
+    }
+    
+    // Super admin credentials
+    const superAdminData = {
+      email: 'superadmin@edumanage.cm',
+      password: 'SuperAdmin2024!',
+      firstName: 'Super',
+      lastName: 'Administrator',
+      role: 'super_admin',
+      phone: '+237123456789'
+    };
+    
+    // Hash password
+    const saltRounds = 12;
+    const passwordHash = await bcrypt.hash(superAdminData.password, saltRounds);
+    
+    // Create super admin
+    const result = await db.query(
+      `INSERT INTO users (email, password_hash, first_name, last_name, role, phone, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+       RETURNING id, email, first_name, last_name, role`,
+      [
+        superAdminData.email,
+        passwordHash,
+        superAdminData.firstName,
+        superAdminData.lastName,
+        superAdminData.role,
+        superAdminData.phone
+      ]
+    );
+    
+    if (result.rows.length > 0) {
+      res.json({
+        message: 'Super admin created successfully!',
+        email: superAdminData.email,
+        password: superAdminData.password,
+        userId: result.rows[0].id,
+        appUrl: 'https://tiny-mousse-1b3e27.netlify.app'
+      });
+    } else {
+      res.status(500).json({ error: 'Failed to create super admin' });
+    }
+    
+  } catch (error) {
+    console.error('Super admin creation error:', error);
+    res.status(500).json({ error: 'Failed to create super admin' });
+  }
+});
+
 // Database setup endpoint (for initial setup)
 app.get('/api/setup-db', async (req, res) => {
   try {

@@ -176,20 +176,37 @@ app.get('/api/setup-db', async (req, res) => {
     const fs = require('fs');
     const schemaPath = path.join(__dirname, 'models/schema.sql');
     const schema = fs.readFileSync(schemaPath, 'utf8');
-    
+
     // Split by semicolon and execute each statement
     const statements = schema.split(';').filter(stmt => stmt.trim());
-    
+
     for (const statement of statements) {
       if (statement.trim()) {
         await db.query(statement);
       }
     }
-    
+
     res.json({ message: 'Database schema created successfully!' });
   } catch (error) {
     console.error('Database setup error:', error);
     res.status(500).json({ error: 'Failed to setup database schema' });
+  }
+});
+
+// Update role constraint endpoint
+app.get('/api/update-role-constraint', async (req, res) => {
+  try {
+    // Drop existing constraint
+    await db.query('ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check');
+    
+    // Add new constraint with all roles
+    await db.query(`ALTER TABLE users ADD CONSTRAINT users_role_check 
+      CHECK (role IN ('admin', 'super_admin', 'school_admin', 'teacher', 'student', 'parent'))`);
+
+    res.json({ message: 'Role constraint updated successfully!' });
+  } catch (error) {
+    console.error('Role constraint update error:', error);
+    res.status(500).json({ error: 'Failed to update role constraint' });
   }
 });
 

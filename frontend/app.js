@@ -530,29 +530,32 @@ class EduManageApp {
             // Show Super Admin dashboard
             this.showRoleDashboard('super-admin');
 
-            // Load all schools, users, and system statistics
-            const [schoolsRes, usersRes, contentRes, revenueRes] = await Promise.all([
+            // Load available data (only existing endpoints)
+            const [schoolsRes, studentsRes, teachersRes, parentsRes] = await Promise.all([
                 this.apiCall('/schools'),
-                this.apiCall('/users'),
-                this.apiCall('/cms/content'),
-                this.apiCall('/cms/revenue')
+                this.apiCall('/students'),
+                this.apiCall('/teachers'),
+                this.apiCall('/parents')
             ]);
 
             const schools = await schoolsRes.json();
-            const users = await usersRes.json();
-            const content = await contentRes.json();
-            const revenue = await revenueRes.json();
+            const students = await studentsRes.json();
+            const teachers = await teachersRes.json();
+            const parents = await parentsRes.json();
+
+            // Calculate total users
+            const totalUsers = students.length + teachers.length + parents.length;
 
             // Update KPI cards
             this.updateElement('total-schools-kpi', schools.length || 0);
-            this.updateElement('total-users-kpi', users.length || 0);
-            this.updateElement('total-content-kpi', content.length || 0);
-            this.updateElement('total-revenue-kpi', `$${revenue.total || 0}`);
+            this.updateElement('total-users-kpi', totalUsers);
+            this.updateElement('total-content-kpi', '0'); // Placeholder until CMS is implemented
+            this.updateElement('total-revenue-kpi', '$0'); // Placeholder until revenue tracking is implemented
 
             // Update regular dashboard counters
-            this.updateElement('total-students', users.filter(u => u.role === 'student').length || 0);
-            this.updateElement('total-teachers', users.filter(u => u.role === 'teacher').length || 0);
-            this.updateElement('total-parents', users.filter(u => u.role === 'parent').length || 0);
+            this.updateElement('total-students', students.length || 0);
+            this.updateElement('total-teachers', teachers.length || 0);
+            this.updateElement('total-parents', parents.length || 0);
             this.updateElement('total-classes', schools.reduce((acc, school) => acc + (school.class_count || 0), 0));
 
         } catch (error) {
@@ -566,20 +569,18 @@ class EduManageApp {
             // Show School Admin dashboard
             this.showRoleDashboard('school-admin');
 
-            // Load school-specific data
-            const [studentsRes, teachersRes, parentsRes, classesRes, schoolRes] = await Promise.all([
+            // Load school-specific data (only existing endpoints)
+            const [studentsRes, teachersRes, parentsRes, classesRes] = await Promise.all([
                 this.apiCall('/students'),
                 this.apiCall('/teachers'),
                 this.apiCall('/parents'),
-                this.apiCall('/classes'),
-                this.apiCall('/schools/current')
+                this.apiCall('/classes')
             ]);
 
             const students = await studentsRes.json();
             const teachers = await teachersRes.json();
             const parents = await parentsRes.json();
             const classes = await classesRes.json();
-            const school = await schoolRes.json();
 
             // Update dashboard counters
             this.updateElement('total-students', students.length || 0);
@@ -587,13 +588,13 @@ class EduManageApp {
             this.updateElement('total-parents', parents.length || 0);
             this.updateElement('total-classes', classes.length || 0);
 
-            // Update school info
-            this.updateElement('school-name-display', school.name || 'N/A');
-            this.updateElement('subsystem-name', school.education_system === 'anglophone' ? 'English (Anglophone)' : 'Français (Francophone)');
-            this.updateElement('school-code-display', school.school_code || 'N/A');
+            // Update school info (placeholder until school endpoint is implemented)
+            this.updateElement('school-name-display', 'Your School');
+            this.updateElement('subsystem-name', this.currentSubsystem === 'anglophone' ? 'English (Anglophone)' : 'Français (Francophone)');
+            this.updateElement('school-code-display', 'SCH001');
 
-            // Load school-specific analytics
-            await this.loadSchoolAnalytics(school.id);
+            // Load school-specific analytics (placeholder)
+            await this.loadSchoolAnalytics(1);
 
         } catch (error) {
             console.error('Error loading School Admin dashboard:', error);
@@ -603,18 +604,23 @@ class EduManageApp {
 
     async loadSchoolAnalytics(schoolId) {
         try {
-            // Load attendance, performance, and enrollment data
-            const [attendanceRes, performanceRes, enrollmentRes] = await Promise.all([
-                this.apiCall(`/analytics/attendance?school_id=${schoolId}`),
-                this.apiCall(`/analytics/performance?school_id=${schoolId}`),
-                this.apiCall(`/analytics/enrollment?school_id=${schoolId}`)
-            ]);
-
-            // Update analytics section if it exists
-            const analyticsSection = document.getElementById('analytics');
-            if (analyticsSection) {
-                // This would be populated with school-specific charts and metrics
-                console.log('School analytics loaded for school:', schoolId);
+            // Placeholder analytics data (until analytics endpoints are implemented)
+            const attendancePercentage = 85; // Mock data
+            const performanceTrend = '+5%'; // Mock data
+            
+            // Update analytics elements if they exist
+            const attendanceProgress = document.getElementById('attendance-progress');
+            const attendancePercentageEl = document.getElementById('attendance-percentage');
+            const performanceTrendEl = document.getElementById('performance-trend');
+            
+            if (attendanceProgress) {
+                attendanceProgress.style.width = `${attendancePercentage}%`;
+            }
+            if (attendancePercentageEl) {
+                attendancePercentageEl.textContent = `${attendancePercentage}%`;
+            }
+            if (performanceTrendEl) {
+                performanceTrendEl.innerHTML = `<i class="fas fa-arrow-up"></i><span>${performanceTrend}</span>`;
             }
 
         } catch (error) {

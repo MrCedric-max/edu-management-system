@@ -204,26 +204,119 @@
             <section id="dashboard" class="section">
                 <div class="container">
                     <h2 data-translate="dashboard-title">Dashboard</h2>
-                    <div class="dashboard-grid">
-                        <div class="dashboard-card">
-                            <i class="fas fa-users"></i>
-                            <h3 data-translate="total-students">Total Students</h3>
-                            <p id="total-students">0</p>
+                    
+                    <!-- Role-specific dashboard content -->
+                    <div id="super-admin-dashboard" class="role-dashboard" style="display: none;">
+                        <div class="dashboard-grid">
+                            <div class="dashboard-card">
+                                <i class="fas fa-school"></i>
+                                <h3 data-translate="total-schools">Total Schools</h3>
+                                <p id="total-schools-kpi">0</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-users"></i>
+                                <h3 data-translate="total-users">Total Users</h3>
+                                <p id="total-users-kpi">0</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-file-alt"></i>
+                                <h3 data-translate="total-content">Total Content</h3>
+                                <p id="total-content-kpi">0</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-credit-card"></i>
+                                <h3 data-translate="total-revenue">Total Revenue</h3>
+                                <p id="total-revenue-kpi">$0</p>
+                            </div>
                         </div>
-                        <div class="dashboard-card">
-                            <i class="fas fa-chalkboard-teacher"></i>
-                            <h3 data-translate="total-teachers">Total Teachers</h3>
-                            <p id="total-teachers">0</p>
+                    </div>
+
+                    <div id="school-admin-dashboard" class="role-dashboard" style="display: none;">
+                        <div class="school-info-card">
+                            <h3 data-translate="school-info">School Information</h3>
+                            <div class="school-details">
+                                <p><strong data-translate="school-name">School:</strong> <span id="school-name-display">-</span></p>
+                                <p><strong data-translate="education-system">System:</strong> <span id="subsystem-name">-</span></p>
+                                <p><strong data-translate="school-code">Code:</strong> <span id="school-code-display">-</span></p>
+                            </div>
                         </div>
-                        <div class="dashboard-card">
-                            <i class="fas fa-home"></i>
-                            <h3 data-translate="total-parents">Total Parents</h3>
-                            <p id="total-parents">0</p>
+                        
+                        <div class="dashboard-grid">
+                            <div class="dashboard-card">
+                                <i class="fas fa-users"></i>
+                                <h3 data-translate="total-students">Total Students</h3>
+                                <p id="total-students">0</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <h3 data-translate="total-teachers">Total Teachers</h3>
+                                <p id="total-teachers">0</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-home"></i>
+                                <h3 data-translate="total-parents">Total Parents</h3>
+                                <p id="total-parents">0</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-school"></i>
+                                <h3 data-translate="total-classes">Total Classes</h3>
+                                <p id="total-classes">0</p>
+                            </div>
                         </div>
-                        <div class="dashboard-card">
-                            <i class="fas fa-school"></i>
-                            <h3 data-translate="total-classes">Total Classes</h3>
-                            <p id="total-classes">0</p>
+
+                        <!-- School Analytics -->
+                        <div class="school-analytics">
+                            <h3 data-translate="school-analytics">School Analytics</h3>
+                            <div class="analytics-grid">
+                                <div class="analytics-card">
+                                    <h4 data-translate="attendance-rate">Attendance Rate</h4>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="attendance-progress" style="width: 0%"></div>
+                                    </div>
+                                    <p id="attendance-percentage">0%</p>
+                                </div>
+                                <div class="analytics-card">
+                                    <h4 data-translate="performance-trend">Performance Trend</h4>
+                                    <div class="trend-indicator" id="performance-trend">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <span>+5%</span>
+                                    </div>
+                                </div>
+                                <div class="analytics-card">
+                                    <h4 data-translate="enrollment-growth">Enrollment Growth</h4>
+                                    <div class="growth-chart" id="enrollment-chart">
+                                        <div class="chart-bar" style="height: 60%"></div>
+                                        <div class="chart-bar" style="height: 80%"></div>
+                                        <div class="chart-bar" style="height: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Default dashboard for other roles -->
+                    <div id="default-dashboard" class="role-dashboard">
+                        <div class="dashboard-grid">
+                            <div class="dashboard-card">
+                                <i class="fas fa-users"></i>
+                                <h3 data-translate="total-students">Total Students</h3>
+                                <p id="total-students">0</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <h3 data-translate="total-teachers">Total Teachers</h3>
+                                <p id="total-teachers">0</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-home"></i>
+                                <h3 data-translate="total-parents">Total Parents</h3>
+                                <p id="total-parents">0</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-school"></i>
+                                <h3 data-translate="total-classes">Total Classes</h3>
+                                <p id="total-classes">0</p>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1088,3 +1088,247 @@ body {
     justify-content: flex-end;
     margin-top: 20px;
 }
+
+/* Role-specific dashboard styling */
+.role-dashboard {
+    display: none;
+}
+
+.role-dashboard.active {
+    display: block;
+}
+
+/* School Admin specific styles */
+.school-info-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.school-info-card h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+}
+
+.school-details p {
+    margin: 0.5rem 0;
+    color: rgba(255,255,255,0.9);
+}
+
+.school-details strong {
+    color: white;
+    font-weight: 600;
+}
+
+/* School Analytics */
+.school-analytics {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
+
+.school-analytics h3 {
+    margin: 0 0 1.5rem 0;
+    color: #333;
+    font-size: 1.3rem;
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.analytics-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+}
+
+.analytics-card h4 {
+    margin: 0 0 1rem 0;
+    color: #555;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745, #20c997);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+/* Trend Indicator */
+.trend-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.trend-indicator.positive {
+    color: #28a745;
+}
+
+.trend-indicator.negative {
+    color: #dc3545;
+}
+
+.trend-indicator.neutral {
+    color: #6c757d;
+}
+
+/* Growth Chart */
+.growth-chart {
+    display: flex;
+    align-items: end;
+    gap: 0.5rem;
+    height: 60px;
+    margin-top: 1rem;
+}
+
+.chart-bar {
+    flex: 1;
+    background: linear-gradient(to top, #667eea, #764ba2);
+    border-radius: 2px 2px 0 0;
+    min-height: 20px;
+    transition: height 0.3s ease;
+}
+
+/* Grade badges */
+.grade-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.grade-excellent {
+    background: #d4edda;
+    color: #155724;
+}
+
+.grade-good {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.grade-average {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.grade-poor {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.grade-fail {
+    background: #f5c6cb;
+    color: #721c24;
+}
+
+/* File type badges */
+.file-type-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.file-pdf {
+    background: #dc3545;
+    color: white;
+}
+
+.file-doc {
+    background: #007bff;
+    color: white;
+}
+
+.file-excel {
+    background: #28a745;
+    color: white;
+}
+
+.file-powerpoint {
+    background: #fd7e14;
+    color: white;
+}
+
+.file-image {
+    background: #6f42c1;
+    color: white;
+}
+
+.file-default {
+    background: #6c757d;
+    color: white;
+}
+
+/* Notification styling */
+.notification {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid #007bff;
+}
+
+.notification.unread {
+    border-left-color: #dc3545;
+    background: #fff5f5;
+}
+
+.notification-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.notification-content p {
+    margin: 0 0 0.5rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.notification-content small {
+    color: #999;
+    font-size: 0.8rem;
+}
+
+.notification-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.no-notifications {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 2rem;
+}

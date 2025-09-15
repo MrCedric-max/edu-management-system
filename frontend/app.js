@@ -527,6 +527,9 @@ class EduManageApp {
 
     async loadSuperAdminDashboard() {
         try {
+            // Show Super Admin dashboard
+            this.showRoleDashboard('super-admin');
+
             // Load all schools, users, and system statistics
             const [schoolsRes, usersRes, contentRes, revenueRes] = await Promise.all([
                 this.apiCall('/schools'),
@@ -560,6 +563,9 @@ class EduManageApp {
 
     async loadSchoolAdminDashboard() {
         try {
+            // Show School Admin dashboard
+            this.showRoleDashboard('school-admin');
+
             // Load school-specific data
             const [studentsRes, teachersRes, parentsRes, classesRes, schoolRes] = await Promise.all([
                 this.apiCall('/students'),
@@ -582,7 +588,9 @@ class EduManageApp {
             this.updateElement('total-classes', classes.length || 0);
 
             // Update school info
+            this.updateElement('school-name-display', school.name || 'N/A');
             this.updateElement('subsystem-name', school.education_system === 'anglophone' ? 'English (Anglophone)' : 'Français (Francophone)');
+            this.updateElement('school-code-display', school.school_code || 'N/A');
 
             // Load school-specific analytics
             await this.loadSchoolAnalytics(school.id);
@@ -616,6 +624,9 @@ class EduManageApp {
 
     async loadTeacherDashboard() {
         try {
+            // Show default dashboard for teachers
+            this.showRoleDashboard('default');
+
             // Load teacher-specific data
             const [classesRes, studentsRes, lessonPlansRes, quizzesRes] = await Promise.all([
                 this.apiCall('/classes/teacher'),
@@ -643,6 +654,9 @@ class EduManageApp {
 
     async loadStudentDashboard() {
         try {
+            // Show default dashboard for students
+            this.showRoleDashboard('default');
+
             // Load student-specific data
             const [gradesRes, assignmentsRes, classesRes] = await Promise.all([
                 this.apiCall('/grades/student'),
@@ -668,6 +682,9 @@ class EduManageApp {
 
     async loadParentDashboard() {
         try {
+            // Show default dashboard for parents
+            this.showRoleDashboard('default');
+
             // Load parent-specific data
             const [childrenRes, progressRes, notificationsRes] = await Promise.all([
                 this.apiCall('/students/parent'),
@@ -693,6 +710,9 @@ class EduManageApp {
 
     async loadDefaultDashboard() {
         try {
+            // Show default dashboard
+            this.showRoleDashboard('default');
+
             // Fallback dashboard for unknown roles
             const [studentsRes, teachersRes, parentsRes, classesRes] = await Promise.all([
                 this.apiCall('/students'),
@@ -723,6 +743,30 @@ class EduManageApp {
         const element = document.getElementById(id);
         if (element) {
             element.textContent = value;
+        }
+    }
+
+    // Show role-specific dashboard
+    showRoleDashboard(role) {
+        // Hide all role dashboards
+        const dashboards = document.querySelectorAll('.role-dashboard');
+        dashboards.forEach(dashboard => {
+            dashboard.classList.remove('active');
+            dashboard.style.display = 'none';
+        });
+
+        // Show the appropriate dashboard
+        const targetDashboard = document.getElementById(`${role}-dashboard`);
+        if (targetDashboard) {
+            targetDashboard.classList.add('active');
+            targetDashboard.style.display = 'block';
+        } else {
+            // Fallback to default dashboard
+            const defaultDashboard = document.getElementById('default-dashboard');
+            if (defaultDashboard) {
+                defaultDashboard.classList.add('active');
+                defaultDashboard.style.display = 'block';
+            }
         }
     }
 

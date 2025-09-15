@@ -141,7 +141,8 @@ class EduManageApp {
             'add-student-btn', 'add-teacher-btn', 'add-parent-btn', 'add-class-btn',
             'add-grade-btn', 'add-quiz-btn', 'add-lesson-plan-btn', 'add-school-btn',
             'upload-file-btn', 'mark-all-read-btn', 'create-quiz-btn', 'create-lesson-plan-btn',
-            'upload-materials-btn', 'grade-assignments-btn'
+            'upload-materials-btn', 'grade-assignments-btn', 'take-quiz-btn', 'view-grades-btn',
+            'view-progress-btn', 'download-materials-btn'
         ];
         
         actionButtons.forEach(buttonId => {
@@ -667,25 +668,35 @@ class EduManageApp {
 
     async loadStudentDashboard() {
         try {
-            // Show default dashboard for students
-            this.showRoleDashboard('default');
+            // Show Student dashboard
+            this.showRoleDashboard('student');
 
-            // Load student-specific data
-            const [gradesRes, assignmentsRes, classesRes] = await Promise.all([
-                this.apiCall('/grades/student'),
-                this.apiCall('/assignments/student'),
-                this.apiCall('/classes/student')
+            // Load student-specific data (using existing endpoints)
+            const [quizzesRes, gradesRes] = await Promise.all([
+                this.apiCall('/quizzes'),
+                this.apiCall('/grades')
             ]);
 
+            const quizzes = await quizzesRes.json();
             const grades = await gradesRes.json();
-            const assignments = await assignmentsRes.json();
-            const classes = await classesRes.json();
 
-            // Update dashboard counters
-            this.updateElement('total-classes', classes.length || 0);
+            // Calculate student statistics
+            const availableQuizzes = quizzes.filter(q => q.status === 'active').length;
+            const completedQuizzes = quizzes.filter(q => q.status === 'completed').length;
+            const averageGrade = grades.length > 0 ? 
+                (grades.reduce((sum, grade) => sum + grade.grade, 0) / grades.length).toFixed(1) : '-';
+
+            // Update student-specific dashboard counters
+            this.updateElement('student-quizzes', availableQuizzes);
+            this.updateElement('student-completed', completedQuizzes);
+            this.updateElement('student-pending', availableQuizzes - completedQuizzes);
+            this.updateElement('student-average-grade', averageGrade);
+
+            // Update regular dashboard counters for compatibility
             this.updateElement('total-students', 1); // Current student
             this.updateElement('total-teachers', 0); // Not relevant for students
             this.updateElement('total-parents', 0); // Not relevant for students
+            this.updateElement('total-classes', 0); // Not relevant for students
 
         } catch (error) {
             console.error('Error loading Student dashboard:', error);
@@ -695,25 +706,37 @@ class EduManageApp {
 
     async loadParentDashboard() {
         try {
-            // Show default dashboard for parents
-            this.showRoleDashboard('default');
+            // Show Parent dashboard
+            this.showRoleDashboard('parent');
 
-            // Load parent-specific data
-            const [childrenRes, progressRes, notificationsRes] = await Promise.all([
-                this.apiCall('/students/parent'),
-                this.apiCall('/progress/parent'),
-                this.apiCall('/notifications/parent')
+            // Load parent-specific data (using existing endpoints)
+            const [studentsRes, notificationsRes] = await Promise.all([
+                this.apiCall('/students'),
+                this.apiCall('/notifications')
             ]);
 
-            const children = await childrenRes.json();
-            const progress = await progressRes.json();
+            const students = await studentsRes.json();
             const notifications = await notificationsRes.json();
 
-            // Update dashboard counters
-            this.updateElement('total-students', children.length || 0);
-            this.updateElement('total-classes', children.reduce((acc, child) => acc + (child.classes?.length || 0), 0));
-            this.updateElement('total-teachers', 0); // Not directly relevant for parents
+            // Calculate parent statistics
+            const childrenCount = students.length; // Assuming all students are children
+            const unreadNotifications = notifications.filter(n => !n.is_read).length;
+            const averageProgress = childrenCount > 0 ? '85%' : '-'; // Mock data
+
+            // Update parent-specific dashboard counters
+            this.updateElement('parent-children', childrenCount);
+            this.updateElement('parent-notifications', unreadNotifications);
+            this.updateElement('parent-progress', averageProgress);
+            this.updateElement('parent-events', '0'); // Placeholder
+
+            // Update regular dashboard counters for compatibility
+            this.updateElement('total-students', childrenCount);
+            this.updateElement('total-teachers', 0); // Not relevant for parents
             this.updateElement('total-parents', 1); // Current parent
+            this.updateElement('total-classes', 0); // Not relevant for parents
+
+            // Load children progress
+            this.loadChildrenProgress(students);
 
         } catch (error) {
             console.error('Error loading Parent dashboard:', error);
@@ -1603,4 +1626,56 @@ EduManageApp.prototype.showUploadMaterialsModal = function() {
 
 EduManageApp.prototype.showGradeAssignmentsModal = function() {
     this.showAlert('Grade Assignments modal - Coming soon!', 'info');
+};
+
+// Student-specific methods
+EduManageApp.prototype.showTakeQuizModal = function() {
+    this.showAlert('Take Quiz modal - Coming soon!', 'info');
+};
+
+EduManageApp.prototype.showViewGradesModal = function() {
+    this.showAlert('View Grades modal - Coming soon!', 'info');
+};
+
+EduManageApp.prototype.showViewProgressModal = function() {
+    this.showAlert('View Progress modal - Coming soon!', 'info');
+};
+
+EduManageApp.prototype.showDownloadMaterialsModal = function() {
+    this.showAlert('Download Materials modal - Coming soon!', 'info');
+};
+
+// Parent-specific methods
+EduManageApp.prototype.loadChildrenProgress = function(children) {
+    const container = document.getElementById('children-progress-grid');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    children.forEach((child, index) => {
+        const progressCard = document.createElement('div');
+        progressCard.className = 'child-progress-card';
+        progressCard.innerHTML = `
+            <h4>${child.first_name} ${child.last_name}</h4>
+            <div class="progress-bar-container">
+                <label>Overall Progress</label>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${85 + (index * 5)}%"></div>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <label>Math</label>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${80 + (index * 3)}%"></div>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <label>Science</label>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${90 + (index * 2)}%"></div>
+                </div>
+            </div>
+        `;
+        container.appendChild(progressCard);
+    });
 };

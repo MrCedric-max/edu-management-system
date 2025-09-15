@@ -103,7 +103,23 @@ const translations = {
         'create-lesson-plan': 'Create Lesson Plan',
         'upload-materials': 'Upload Materials',
         'grade-assignments': 'Grade Assignments',
-        'recent-activity': 'Recent Activity'
+        'recent-activity': 'Recent Activity',
+        'welcome-student': 'Welcome, Student!',
+        'student-subtitle': 'Take quizzes, view your grades, and track your progress',
+        'available-quizzes': 'Available Quizzes',
+        'average-grade': 'Average Grade',
+        'completed-quizzes': 'Completed',
+        'pending-assignments': 'Pending',
+        'take-quiz': 'Take Quiz',
+        'view-grades': 'View Grades',
+        'view-progress': 'View Progress',
+        'download-materials': 'Download Materials',
+        'welcome-parent': 'Welcome, Parent!',
+        'parent-subtitle': 'Monitor your child\'s progress and stay connected with their education',
+        'my-children': 'My Children',
+        'average-progress': 'Average Progress',
+        'upcoming-events': 'Upcoming Events',
+        'children-progress': 'Children\'s Progress'
     },
     fr: {
         // General
@@ -208,7 +224,23 @@ const translations = {
         'create-lesson-plan': 'Créer un Plan de Cours',
         'upload-materials': 'Télécharger des Matériaux',
         'grade-assignments': 'Noter les Devoirs',
-        'recent-activity': 'Activité Récente'
+        'recent-activity': 'Activité Récente',
+        'welcome-student': 'Bienvenue, Élève !',
+        'student-subtitle': 'Passez des quiz, consultez vos notes et suivez vos progrès',
+        'available-quizzes': 'Quiz Disponibles',
+        'average-grade': 'Note Moyenne',
+        'completed-quizzes': 'Terminés',
+        'pending-assignments': 'En Attente',
+        'take-quiz': 'Passer un Quiz',
+        'view-grades': 'Voir les Notes',
+        'view-progress': 'Voir les Progrès',
+        'download-materials': 'Télécharger des Matériaux',
+        'welcome-parent': 'Bienvenue, Parent !',
+        'parent-subtitle': 'Surveillez les progrès de votre enfant et restez connecté à son éducation',
+        'my-children': 'Mes Enfants',
+        'average-progress': 'Progrès Moyen',
+        'upcoming-events': 'Événements à Venir',
+        'children-progress': 'Progrès des Enfants'
     }
 };
 

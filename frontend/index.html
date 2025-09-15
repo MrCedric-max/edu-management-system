@@ -294,6 +294,88 @@
                         </div>
                     </div>
 
+                    <!-- Teacher Dashboard -->
+                    <div id="teacher-dashboard" class="role-dashboard" style="display: none;">
+                        <div class="teacher-welcome">
+                            <h3 data-translate="welcome-teacher">Welcome, Teacher!</h3>
+                            <p data-translate="teacher-subtitle">Manage your classes, create quizzes, and track student progress</p>
+                        </div>
+                        
+                        <div class="dashboard-grid">
+                            <div class="dashboard-card">
+                                <i class="fas fa-users"></i>
+                                <h3 data-translate="my-students">My Students</h3>
+                                <p id="teacher-students">0</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-school"></i>
+                                <h3 data-translate="my-classes">My Classes</h3>
+                                <p id="teacher-classes">0</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-question-circle"></i>
+                                <h3 data-translate="my-quizzes">My Quizzes</h3>
+                                <p id="teacher-quizzes">0</p>
+                            </div>
+                            <div class="dashboard-card">
+                                <i class="fas fa-book"></i>
+                                <h3 data-translate="lesson-plans">Lesson Plans</h3>
+                                <p id="teacher-lesson-plans">0</p>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="quick-actions">
+                            <h3 data-translate="quick-actions">Quick Actions</h3>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary" id="create-quiz-btn">
+                                    <i class="fas fa-plus"></i>
+                                    <span data-translate="create-quiz">Create Quiz</span>
+                                </button>
+                                <button class="btn btn-success" id="create-lesson-plan-btn">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    <span data-translate="create-lesson-plan">Create Lesson Plan</span>
+                                </button>
+                                <button class="btn btn-info" id="upload-materials-btn">
+                                    <i class="fas fa-upload"></i>
+                                    <span data-translate="upload-materials">Upload Materials</span>
+                                </button>
+                                <button class="btn btn-warning" id="grade-assignments-btn">
+                                    <i class="fas fa-edit"></i>
+                                    <span data-translate="grade-assignments">Grade Assignments</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="recent-activity">
+                            <h3 data-translate="recent-activity">Recent Activity</h3>
+                            <div class="activity-list" id="teacher-activity-list">
+                                <div class="activity-item">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="activity-content">
+                                        <p>Created new quiz: "Math Basics"</p>
+                                        <small>2 hours ago</small>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <i class="fas fa-book"></i>
+                                    <div class="activity-content">
+                                        <p>Updated lesson plan: "Introduction to Algebra"</p>
+                                        <small>1 day ago</small>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <i class="fas fa-upload"></i>
+                                    <div class="activity-content">
+                                        <p>Uploaded materials: "Worksheet 1.pdf"</p>
+                                        <small>2 days ago</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Default dashboard for other roles -->
                     <div id="default-dashboard" class="role-dashboard">
                         <div class="dashboard-grid">

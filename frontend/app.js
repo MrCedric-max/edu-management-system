@@ -140,7 +140,8 @@ class EduManageApp {
         const actionButtons = [
             'add-student-btn', 'add-teacher-btn', 'add-parent-btn', 'add-class-btn',
             'add-grade-btn', 'add-quiz-btn', 'add-lesson-plan-btn', 'add-school-btn',
-            'upload-file-btn', 'mark-all-read-btn'
+            'upload-file-btn', 'mark-all-read-btn', 'create-quiz-btn', 'create-lesson-plan-btn',
+            'upload-materials-btn', 'grade-assignments-btn'
         ];
         
         actionButtons.forEach(buttonId => {
@@ -630,15 +631,15 @@ class EduManageApp {
 
     async loadTeacherDashboard() {
         try {
-            // Show default dashboard for teachers
-            this.showRoleDashboard('default');
+            // Show Teacher dashboard
+            this.showRoleDashboard('teacher');
 
-            // Load teacher-specific data
+            // Load teacher-specific data (using existing endpoints)
             const [classesRes, studentsRes, lessonPlansRes, quizzesRes] = await Promise.all([
-                this.apiCall('/classes/teacher'),
-                this.apiCall('/students/teacher'),
-                this.apiCall('/lesson-plans/teacher'),
-                this.apiCall('/quizzes/teacher')
+                this.apiCall('/classes'),
+                this.apiCall('/students'),
+                this.apiCall('/lesson-plans'),
+                this.apiCall('/quizzes')
             ]);
 
             const classes = await classesRes.json();
@@ -646,7 +647,13 @@ class EduManageApp {
             const lessonPlans = await lessonPlansRes.json();
             const quizzes = await quizzesRes.json();
 
-            // Update dashboard counters
+            // Update teacher-specific dashboard counters
+            this.updateElement('teacher-students', students.length || 0);
+            this.updateElement('teacher-classes', classes.length || 0);
+            this.updateElement('teacher-quizzes', quizzes.length || 0);
+            this.updateElement('teacher-lesson-plans', lessonPlans.length || 0);
+
+            // Update regular dashboard counters for compatibility
             this.updateElement('total-classes', classes.length || 0);
             this.updateElement('total-students', students.length || 0);
             this.updateElement('total-teachers', 1); // Current teacher
@@ -1333,3 +1340,267 @@ if (document.readyState === 'loading') {
     // DOM is already loaded, initialize immediately
     window.app = new EduManageApp();
 }
+
+// Teacher-specific methods
+EduManageApp.prototype.showCreateQuizModal = function() {
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modal-body');
+    
+    modalBody.innerHTML = `
+        <div class="quiz-modal">
+            <h3>Create New Quiz</h3>
+            <form id="quiz-form">
+                <div class="form-group">
+                    <label for="quiz-title">Quiz Title *</label>
+                    <input type="text" id="quiz-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="quiz-subject">Subject *</label>
+                    <input type="text" id="quiz-subject" required>
+                </div>
+                <div class="form-group">
+                    <label for="quiz-class">Class *</label>
+                    <select id="quiz-class" required>
+                        <option value="">Select Class</option>
+                        <option value="class1">Class 1 / SIL</option>
+                        <option value="class2">Class 2 / CP</option>
+                        <option value="class3">Class 3 / CE1</option>
+                        <option value="class4">Class 4 / CE2</option>
+                        <option value="class5">Class 5 / CM1</option>
+                        <option value="class6">Class 6 / CM2</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quiz-duration">Duration (minutes)</label>
+                    <input type="number" id="quiz-duration" min="5" max="180" value="30">
+                </div>
+                
+                <div class="question-type-selector">
+                    <div class="question-type-btn active" data-type="multiple-choice">
+                        <i class="fas fa-list-ul"></i>
+                        <span>Multiple Choice</span>
+                    </div>
+                    <div class="question-type-btn" data-type="true-false">
+                        <i class="fas fa-check-circle"></i>
+                        <span>True/False</span>
+                    </div>
+                    <div class="question-type-btn" data-type="short-answer">
+                        <i class="fas fa-edit"></i>
+                        <span>Short Answer</span>
+                    </div>
+                    <div class="question-type-btn" data-type="essay">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Essay</span>
+                    </div>
+                </div>
+                
+                <div class="question-builder" id="question-builder">
+                    <h4>Questions</h4>
+                    <button type="button" class="btn btn-primary" id="add-question-btn">Add Question</button>
+                    <div id="questions-container"></div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="app.closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Quiz</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    modal.style.display = 'block';
+    
+    // Add event listeners for quiz creation
+    this.setupQuizCreationListeners();
+};
+
+EduManageApp.prototype.setupQuizCreationListeners = function() {
+    // Question type selector
+    document.querySelectorAll('.question-type-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.question-type-btn').forEach(b => b.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+        });
+    });
+    
+    // Add question button
+    const addQuestionBtn = document.getElementById('add-question-btn');
+    if (addQuestionBtn) {
+        addQuestionBtn.addEventListener('click', () => {
+            this.addQuestion();
+        });
+    }
+    
+    // Quiz form submission
+    const quizForm = document.getElementById('quiz-form');
+    if (quizForm) {
+        quizForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleQuizCreation();
+        });
+    }
+};
+
+EduManageApp.prototype.addQuestion = function() {
+    const container = document.getElementById('questions-container');
+    const questionCount = container.children.length + 1;
+    const activeType = document.querySelector('.question-type-btn.active').getAttribute('data-type');
+    
+    const questionHTML = `
+        <div class="question-item" data-question="${questionCount}">
+            <div class="question-header">
+                <span class="question-number">Question ${questionCount}</span>
+                <button type="button" class="remove-question" onclick="app.removeQuestion(${questionCount})">Remove</button>
+            </div>
+            <div class="form-group">
+                <label>Question Text *</label>
+                <textarea class="question-text" placeholder="Enter your question..." required></textarea>
+            </div>
+            <div class="question-options" data-type="${activeType}">
+                ${this.getQuestionOptionsHTML(activeType)}
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', questionHTML);
+};
+
+EduManageApp.prototype.getQuestionOptionsHTML = function(type) {
+    switch(type) {
+        case 'multiple-choice':
+            return `
+                <div class="form-group">
+                    <label>Options *</label>
+                    <div class="option-input">
+                        <input type="text" placeholder="Option A" required>
+                        <input type="radio" name="correct-${Date.now()}" value="0">
+                    </div>
+                    <div class="option-input">
+                        <input type="text" placeholder="Option B" required>
+                        <input type="radio" name="correct-${Date.now()}" value="1">
+                    </div>
+                    <div class="option-input">
+                        <input type="text" placeholder="Option C" required>
+                        <input type="radio" name="correct-${Date.now()}" value="2">
+                    </div>
+                    <div class="option-input">
+                        <input type="text" placeholder="Option D" required>
+                        <input type="radio" name="correct-${Date.now()}" value="3">
+                    </div>
+                    <small>Select the correct answer</small>
+                </div>
+            `;
+        case 'true-false':
+            return `
+                <div class="form-group">
+                    <label>Correct Answer *</label>
+                    <div>
+                        <label><input type="radio" name="correct-${Date.now()}" value="true" required> True</label>
+                        <label><input type="radio" name="correct-${Date.now()}" value="false" required> False</label>
+                    </div>
+                </div>
+            `;
+        case 'short-answer':
+            return `
+                <div class="form-group">
+                    <label>Expected Answer *</label>
+                    <input type="text" class="expected-answer" placeholder="Enter expected answer..." required>
+                </div>
+            `;
+        case 'essay':
+            return `
+                <div class="form-group">
+                    <label>Grading Criteria</label>
+                    <textarea class="grading-criteria" placeholder="Enter grading criteria..."></textarea>
+                </div>
+            `;
+        default:
+            return '';
+    }
+};
+
+EduManageApp.prototype.removeQuestion = function(questionNumber) {
+    const question = document.querySelector(`[data-question="${questionNumber}"]`);
+    if (question) {
+        question.remove();
+        // Renumber remaining questions
+        this.renumberQuestions();
+    }
+};
+
+EduManageApp.prototype.renumberQuestions = function() {
+    const questions = document.querySelectorAll('.question-item');
+    questions.forEach((question, index) => {
+        const questionNumber = index + 1;
+        question.setAttribute('data-question', questionNumber);
+        question.querySelector('.question-number').textContent = `Question ${questionNumber}`;
+    });
+};
+
+EduManageApp.prototype.handleQuizCreation = function() {
+    const title = document.getElementById('quiz-title').value;
+    const subject = document.getElementById('quiz-subject').value;
+    const classLevel = document.getElementById('quiz-class').value;
+    const duration = document.getElementById('quiz-duration').value;
+    
+    const questions = [];
+    document.querySelectorAll('.question-item').forEach(questionEl => {
+        const questionText = questionEl.querySelector('.question-text').value;
+        const type = questionEl.querySelector('.question-options').getAttribute('data-type');
+        
+        let options = [];
+        if (type === 'multiple-choice') {
+            const optionInputs = questionEl.querySelectorAll('.option-input input[type="text"]');
+            const correctRadio = questionEl.querySelector('input[type="radio"]:checked');
+            optionInputs.forEach((input, index) => {
+                options.push({
+                    text: input.value,
+                    isCorrect: correctRadio && correctRadio.value == index
+                });
+            });
+        } else if (type === 'true-false') {
+            const correctRadio = questionEl.querySelector('input[type="radio"]:checked');
+            options = [
+                { text: 'True', isCorrect: correctRadio && correctRadio.value === 'true' },
+                { text: 'False', isCorrect: correctRadio && correctRadio.value === 'false' }
+            ];
+        }
+        
+        questions.push({
+            text: questionText,
+            type: type,
+            options: options
+        });
+    });
+    
+    if (questions.length === 0) {
+        this.showAlert('Please add at least one question', 'error');
+        return;
+    }
+    
+    const quizData = {
+        title,
+        subject,
+        class_level: classLevel,
+        duration: parseInt(duration),
+        questions: questions,
+        education_system: this.currentSubsystem
+    };
+    
+    // Here you would send the quiz data to the backend
+    console.log('Quiz data:', quizData);
+    this.showAlert('Quiz created successfully! (Backend integration pending)', 'success');
+    this.closeModal();
+};
+
+EduManageApp.prototype.showCreateLessonPlanModal = function() {
+    this.showAlert('Create Lesson Plan modal - Coming soon!', 'info');
+};
+
+EduManageApp.prototype.showUploadMaterialsModal = function() {
+    this.showAlert('Upload Materials modal - Coming soon!', 'info');
+};
+
+EduManageApp.prototype.showGradeAssignmentsModal = function() {
+    this.showAlert('Grade Assignments modal - Coming soon!', 'info');
+};

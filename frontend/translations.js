@@ -92,7 +92,18 @@ const translations = {
         'location': 'Location',
         'profile-title': 'Profile',
         'user-info': 'User Information',
-        'role': 'Role'
+        'role': 'Role',
+        'welcome-teacher': 'Welcome, Teacher!',
+        'teacher-subtitle': 'Manage your classes, create quizzes, and track student progress',
+        'my-students': 'My Students',
+        'my-classes': 'My Classes',
+        'my-quizzes': 'My Quizzes',
+        'quick-actions': 'Quick Actions',
+        'create-quiz': 'Create Quiz',
+        'create-lesson-plan': 'Create Lesson Plan',
+        'upload-materials': 'Upload Materials',
+        'grade-assignments': 'Grade Assignments',
+        'recent-activity': 'Recent Activity'
     },
     fr: {
         // General
@@ -186,7 +197,18 @@ const translations = {
         'location': 'Localisation',
         'profile-title': 'Profil',
         'user-info': 'Informations utilisateur',
-        'role': 'Rôle'
+        'role': 'Rôle',
+        'welcome-teacher': 'Bienvenue, Enseignant !',
+        'teacher-subtitle': 'Gérez vos classes, créez des quiz et suivez les progrès des élèves',
+        'my-students': 'Mes Élèves',
+        'my-classes': 'Mes Classes',
+        'my-quizzes': 'Mes Quiz',
+        'quick-actions': 'Actions Rapides',
+        'create-quiz': 'Créer un Quiz',
+        'create-lesson-plan': 'Créer un Plan de Cours',
+        'upload-materials': 'Télécharger des Matériaux',
+        'grade-assignments': 'Noter les Devoirs',
+        'recent-activity': 'Activité Récente'
     }
 };
 

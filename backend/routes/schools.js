@@ -2,8 +2,116 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const db = require('../config/database');
 const { auth, adminOnly } = require('../middleware/auth');
+const { tenantMiddleware, addTenantFilter } = require('../middleware/tenant');
+const ClassMapping = require('../utils/classMapping');
 
 const router = express.Router();
+
+// Create school with education system and school admin
+router.post('/create-with-admin', auth, adminOnly, [
+  body('name').trim().isLength({ min: 1 }).withMessage('School name is required'),
+  body('address').optional().trim(),
+  body('phone').optional().isMobilePhone().withMessage('Invalid phone number'),
+  body('email').optional().isEmail().withMessage('Invalid email'),
+  body('principal_name').optional().trim(),
+  body('education_system').isIn(['anglophone', 'francophone']).withMessage('Education system must be anglophone or francophone'),
+  body('school_admin_email').isEmail().withMessage('School admin email is required'),
+  body('school_admin_first_name').trim().isLength({ min: 1 }).withMessage('School admin first name is required'),
+  body('school_admin_last_name').trim().isLength({ min: 1 }).withMessage('School admin last name is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const {
+      name,
+      address,
+      phone,
+      email,
+      principal_name,
+      education_system,
+      school_admin_email,
+      school_admin_first_name,
+      school_admin_last_name
+    } = req.body;
+
+    // Generate unique school code
+    const school_code = `SCH${Date.now().toString().slice(-6)}`;
+
+    // Create school
+    const schoolResult = await db.query(
+      `INSERT INTO schools (name, address, phone, email, principal_name, education_system, school_code)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, name, school_code, education_system`,
+      [name, address, phone, email, principal_name, education_system, school_code]
+    );
+
+    const school = schoolResult.rows[0];
+
+    // Generate temporary password for school admin
+    const tempPassword = `Admin${school_code}`;
+    const bcrypt = require('bcryptjs');
+    const passwordHash = await bcrypt.hash(tempPassword, 12);
+
+    // Create school admin user
+    const adminResult = await db.query(
+      `INSERT INTO users (email, password_hash, first_name, last_name, role, school_id, phone)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, email, first_name, last_name, role`,
+      [school_admin_email, passwordHash, school_admin_first_name, school_admin_last_name, 'school_admin', school.id, phone]
+    );
+
+    const schoolAdmin = adminResult.rows[0];
+
+    // Get class names for the education system
+    const classNames = await ClassMapping.getClassNames(education_system);
+
+    res.status(201).json({
+      message: 'School created successfully',
+      school: {
+        id: school.id,
+        name: school.name,
+        school_code: school.school_code,
+        education_system: school.education_system,
+        class_names: classNames
+      },
+      school_admin: {
+        id: schoolAdmin.id,
+        email: schoolAdmin.email,
+        name: `${schoolAdmin.first_name} ${schoolAdmin.last_name}`,
+        temporary_password: tempPassword
+      }
+    });
+
+  } catch (error) {
+    console.error('School creation error:', error);
+    res.status(500).json({ error: 'Failed to create school' });
+  }
+});
+
+// Get class names for education system
+router.get('/class-names/:educationSystem', auth, async (req, res) => {
+  try {
+    const { educationSystem } = req.params;
+    
+    if (!['anglophone', 'francophone'].includes(educationSystem)) {
+      return res.status(400).json({ error: 'Invalid education system' });
+    }
+
+    const classNames = await ClassMapping.getClassNames(educationSystem);
+    
+    res.json({
+      education_system: educationSystem,
+      class_names: classNames
+    });
+
+  } catch (error) {
+    console.error('Error getting class names:', error);
+    res.status(500).json({ error: 'Failed to get class names' });
+  }
+});
 
 // Get all schools
 router.get('/', auth, async (req, res) => {

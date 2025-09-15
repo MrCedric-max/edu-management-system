@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_name VARCHAR(100) NOT NULL,
     phone VARCHAR(20),
     role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'super_admin', 'school_admin', 'teacher', 'student', 'parent')),
+    school_id INTEGER REFERENCES schools(id) ON DELETE SET NULL,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -26,6 +27,9 @@ CREATE TABLE IF NOT EXISTS schools (
     phone VARCHAR(20),
     email VARCHAR(255),
     principal_name VARCHAR(255),
+    education_system VARCHAR(20) NOT NULL CHECK (education_system IN ('anglophone', 'francophone')),
+    school_code VARCHAR(20) UNIQUE NOT NULL,
+    is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -70,6 +74,24 @@ CREATE TABLE IF NOT EXISTS subjects (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Class name mapping table for different education systems
+CREATE TABLE IF NOT EXISTS class_name_mappings (
+    id SERIAL PRIMARY KEY,
+    anglophone_name VARCHAR(50) NOT NULL,
+    francophone_name VARCHAR(50) NOT NULL,
+    level_order INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert default class mappings
+INSERT INTO class_name_mappings (anglophone_name, francophone_name, level_order) VALUES
+('Class 1', 'SIL', 1),
+('Class 2', 'CP', 2),
+('Class 3', 'CE1', 3),
+('Class 4', 'CE2', 4),
+('Class 5', 'CM1', 5),
+('Class 6', 'CM2', 6);
+
 -- Classes table
 CREATE TABLE IF NOT EXISTS classes (
     id SERIAL PRIMARY KEY,
@@ -77,6 +99,7 @@ CREATE TABLE IF NOT EXISTS classes (
     subject_id INTEGER REFERENCES subjects(id) ON DELETE CASCADE,
     teacher_id INTEGER REFERENCES teachers(id) ON DELETE SET NULL,
     school_id INTEGER REFERENCES schools(id) ON DELETE CASCADE,
+    class_level INTEGER NOT NULL, -- 1-6 for both systems
     room_number VARCHAR(20),
     schedule_days VARCHAR(20), -- e.g., "MWF" for Monday, Wednesday, Friday
     start_time TIME,

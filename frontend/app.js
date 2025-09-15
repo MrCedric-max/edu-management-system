@@ -490,7 +490,210 @@ class EduManageApp {
 
     async loadDashboard() {
         try {
-            // Load dashboard statistics
+            // Load user profile to determine role
+            const profileRes = await this.apiCall('/auth/profile');
+            if (!profileRes.ok) {
+                throw new Error('Failed to load user profile');
+            }
+            
+            const userProfile = await profileRes.json();
+            this.currentUser = userProfile;
+            
+            // Load role-specific dashboard
+            switch (userProfile.role) {
+                case 'super_admin':
+                    await this.loadSuperAdminDashboard();
+                    break;
+                case 'school_admin':
+                    await this.loadSchoolAdminDashboard();
+                    break;
+                case 'teacher':
+                    await this.loadTeacherDashboard();
+                    break;
+                case 'student':
+                    await this.loadStudentDashboard();
+                    break;
+                case 'parent':
+                    await this.loadParentDashboard();
+                    break;
+                default:
+                    await this.loadDefaultDashboard();
+            }
+        } catch (error) {
+            console.error('Error loading dashboard:', error);
+            this.showAlert('Failed to load dashboard data', 'error');
+        }
+    }
+
+    async loadSuperAdminDashboard() {
+        try {
+            // Load all schools, users, and system statistics
+            const [schoolsRes, usersRes, contentRes, revenueRes] = await Promise.all([
+                this.apiCall('/schools'),
+                this.apiCall('/users'),
+                this.apiCall('/cms/content'),
+                this.apiCall('/cms/revenue')
+            ]);
+
+            const schools = await schoolsRes.json();
+            const users = await usersRes.json();
+            const content = await contentRes.json();
+            const revenue = await revenueRes.json();
+
+            // Update KPI cards
+            this.updateElement('total-schools-kpi', schools.length || 0);
+            this.updateElement('total-users-kpi', users.length || 0);
+            this.updateElement('total-content-kpi', content.length || 0);
+            this.updateElement('total-revenue-kpi', `$${revenue.total || 0}`);
+
+            // Update regular dashboard counters
+            this.updateElement('total-students', users.filter(u => u.role === 'student').length || 0);
+            this.updateElement('total-teachers', users.filter(u => u.role === 'teacher').length || 0);
+            this.updateElement('total-parents', users.filter(u => u.role === 'parent').length || 0);
+            this.updateElement('total-classes', schools.reduce((acc, school) => acc + (school.class_count || 0), 0));
+
+        } catch (error) {
+            console.error('Error loading Super Admin dashboard:', error);
+            this.showAlert('Failed to load Super Admin dashboard', 'error');
+        }
+    }
+
+    async loadSchoolAdminDashboard() {
+        try {
+            // Load school-specific data
+            const [studentsRes, teachersRes, parentsRes, classesRes, schoolRes] = await Promise.all([
+                this.apiCall('/students'),
+                this.apiCall('/teachers'),
+                this.apiCall('/parents'),
+                this.apiCall('/classes'),
+                this.apiCall('/schools/current')
+            ]);
+
+            const students = await studentsRes.json();
+            const teachers = await teachersRes.json();
+            const parents = await parentsRes.json();
+            const classes = await classesRes.json();
+            const school = await schoolRes.json();
+
+            // Update dashboard counters
+            this.updateElement('total-students', students.length || 0);
+            this.updateElement('total-teachers', teachers.length || 0);
+            this.updateElement('total-parents', parents.length || 0);
+            this.updateElement('total-classes', classes.length || 0);
+
+            // Update school info
+            this.updateElement('subsystem-name', school.education_system === 'anglophone' ? 'English (Anglophone)' : 'Français (Francophone)');
+
+            // Load school-specific analytics
+            await this.loadSchoolAnalytics(school.id);
+
+        } catch (error) {
+            console.error('Error loading School Admin dashboard:', error);
+            this.showAlert('Failed to load School Admin dashboard', 'error');
+        }
+    }
+
+    async loadSchoolAnalytics(schoolId) {
+        try {
+            // Load attendance, performance, and enrollment data
+            const [attendanceRes, performanceRes, enrollmentRes] = await Promise.all([
+                this.apiCall(`/analytics/attendance?school_id=${schoolId}`),
+                this.apiCall(`/analytics/performance?school_id=${schoolId}`),
+                this.apiCall(`/analytics/enrollment?school_id=${schoolId}`)
+            ]);
+
+            // Update analytics section if it exists
+            const analyticsSection = document.getElementById('analytics');
+            if (analyticsSection) {
+                // This would be populated with school-specific charts and metrics
+                console.log('School analytics loaded for school:', schoolId);
+            }
+
+        } catch (error) {
+            console.error('Error loading school analytics:', error);
+        }
+    }
+
+    async loadTeacherDashboard() {
+        try {
+            // Load teacher-specific data
+            const [classesRes, studentsRes, lessonPlansRes, quizzesRes] = await Promise.all([
+                this.apiCall('/classes/teacher'),
+                this.apiCall('/students/teacher'),
+                this.apiCall('/lesson-plans/teacher'),
+                this.apiCall('/quizzes/teacher')
+            ]);
+
+            const classes = await classesRes.json();
+            const students = await studentsRes.json();
+            const lessonPlans = await lessonPlansRes.json();
+            const quizzes = await quizzesRes.json();
+
+            // Update dashboard counters
+            this.updateElement('total-classes', classes.length || 0);
+            this.updateElement('total-students', students.length || 0);
+            this.updateElement('total-teachers', 1); // Current teacher
+            this.updateElement('total-parents', 0); // Not relevant for teachers
+
+        } catch (error) {
+            console.error('Error loading Teacher dashboard:', error);
+            this.showAlert('Failed to load Teacher dashboard', 'error');
+        }
+    }
+
+    async loadStudentDashboard() {
+        try {
+            // Load student-specific data
+            const [gradesRes, assignmentsRes, classesRes] = await Promise.all([
+                this.apiCall('/grades/student'),
+                this.apiCall('/assignments/student'),
+                this.apiCall('/classes/student')
+            ]);
+
+            const grades = await gradesRes.json();
+            const assignments = await assignmentsRes.json();
+            const classes = await classesRes.json();
+
+            // Update dashboard counters
+            this.updateElement('total-classes', classes.length || 0);
+            this.updateElement('total-students', 1); // Current student
+            this.updateElement('total-teachers', 0); // Not relevant for students
+            this.updateElement('total-parents', 0); // Not relevant for students
+
+        } catch (error) {
+            console.error('Error loading Student dashboard:', error);
+            this.showAlert('Failed to load Student dashboard', 'error');
+        }
+    }
+
+    async loadParentDashboard() {
+        try {
+            // Load parent-specific data
+            const [childrenRes, progressRes, notificationsRes] = await Promise.all([
+                this.apiCall('/students/parent'),
+                this.apiCall('/progress/parent'),
+                this.apiCall('/notifications/parent')
+            ]);
+
+            const children = await childrenRes.json();
+            const progress = await progressRes.json();
+            const notifications = await notificationsRes.json();
+
+            // Update dashboard counters
+            this.updateElement('total-students', children.length || 0);
+            this.updateElement('total-classes', children.reduce((acc, child) => acc + (child.classes?.length || 0), 0));
+            this.updateElement('total-teachers', 0); // Not directly relevant for parents
+            this.updateElement('total-parents', 1); // Current parent
+
+        } catch (error) {
+            console.error('Error loading Parent dashboard:', error);
+            this.showAlert('Failed to load Parent dashboard', 'error');
+        }
+    }
+
+    async loadDefaultDashboard() {
+        try {
+            // Fallback dashboard for unknown roles
             const [studentsRes, teachersRes, parentsRes, classesRes] = await Promise.all([
                 this.apiCall('/students'),
                 this.apiCall('/teachers'),
@@ -498,35 +701,71 @@ class EduManageApp {
                 this.apiCall('/classes')
             ]);
 
-            if (!studentsRes.ok || !teachersRes.ok || !parentsRes.ok || !classesRes.ok) {
-                throw new Error('Failed to load dashboard data');
-            }
-
             const students = await studentsRes.json();
             const teachers = await teachersRes.json();
             const parents = await parentsRes.json();
             const classes = await classesRes.json();
 
-            // Update dashboard counters with null checks
-            const totalStudents = document.getElementById('total-students');
-            const totalTeachers = document.getElementById('total-teachers');
-            const totalParents = document.getElementById('total-parents');
-            const totalClasses = document.getElementById('total-classes');
+            // Update dashboard counters
+            this.updateElement('total-students', students.length || 0);
+            this.updateElement('total-teachers', teachers.length || 0);
+            this.updateElement('total-parents', parents.length || 0);
+            this.updateElement('total-classes', classes.length || 0);
 
-            if (totalStudents) totalStudents.textContent = students.length || 0;
-            if (totalTeachers) totalTeachers.textContent = teachers.length || 0;
-            if (totalParents) totalParents.textContent = parents.length || 0;
-            if (totalClasses) totalClasses.textContent = classes.length || 0;
         } catch (error) {
-            console.error('Error loading dashboard:', error);
+            console.error('Error loading default dashboard:', error);
             this.showAlert('Failed to load dashboard data', 'error');
         }
     }
 
-    // Placeholder methods for data loading
+    // Helper method to safely update DOM elements
+    updateElement(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
+    // Enhanced data loading methods with role-based functionality
     async loadStudents() { 
         try {
-            this.showAlert('Loading students...', 'info'); 
+            const response = await this.apiCall('/students');
+            if (!response.ok) {
+                throw new Error('Failed to load students');
+            }
+            
+            const students = await response.json();
+            const studentsTable = document.getElementById('students-table');
+            
+            if (studentsTable) {
+                studentsTable.innerHTML = '';
+                
+                students.forEach(student => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${student.first_name} ${student.last_name}</td>
+                        <td>${student.class_name || 'N/A'}</td>
+                        <td>
+                            <span class="badge ${student.education_system === 'anglophone' ? 'badge-blue' : 'badge-green'}">
+                                ${student.education_system === 'anglophone' ? 'Anglophone' : 'Francophone'}
+                            </span>
+                        </td>
+                        <td>${student.parent_name || 'N/A'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="app.viewStudent(${student.id})">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="app.editStudent(${student.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="app.deleteStudent(${student.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    studentsTable.appendChild(row);
+                });
+            }
         } catch (error) {
             console.error('Error loading students:', error);
             this.showAlert('Failed to load students', 'error');
@@ -534,7 +773,43 @@ class EduManageApp {
     }
     async loadTeachers() { 
         try {
-            this.showAlert('Loading teachers...', 'info'); 
+            const response = await this.apiCall('/teachers');
+            if (!response.ok) {
+                throw new Error('Failed to load teachers');
+            }
+            
+            const teachers = await response.json();
+            const teachersTable = document.getElementById('teachers-table');
+            
+            if (teachersTable) {
+                teachersTable.innerHTML = '';
+                
+                teachers.forEach(teacher => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${teacher.first_name} ${teacher.last_name}</td>
+                        <td>
+                            <span class="badge ${teacher.education_system === 'anglophone' ? 'badge-blue' : 'badge-green'}">
+                                ${teacher.education_system === 'anglophone' ? 'Anglophone' : 'Francophone'}
+                            </span>
+                        </td>
+                        <td>${teacher.subjects ? teacher.subjects.join(', ') : 'N/A'}</td>
+                        <td>${teacher.class_count || 0}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="app.viewTeacher(${teacher.id})">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="app.editTeacher(${teacher.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="app.deleteTeacher(${teacher.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    teachersTable.appendChild(row);
+                });
+            }
         } catch (error) {
             console.error('Error loading teachers:', error);
             this.showAlert('Failed to load teachers', 'error');
@@ -542,23 +817,133 @@ class EduManageApp {
     }
     async loadParents() { 
         try {
-            this.showAlert('Loading parents...', 'info'); 
+            const response = await this.apiCall('/parents');
+            if (!response.ok) {
+                throw new Error('Failed to load parents');
+            }
+            
+            const parents = await response.json();
+            const parentsTable = document.getElementById('parents-table');
+            
+            if (parentsTable) {
+                parentsTable.innerHTML = '';
+                
+                parents.forEach(parent => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${parent.first_name} ${parent.last_name}</td>
+                        <td>
+                            <span class="badge ${parent.parent_type === 'affiliated' ? 'badge-green' : 'badge-blue'}">
+                                ${parent.parent_type === 'affiliated' ? 'Affiliated' : 'Non-Affiliated'}
+                            </span>
+                        </td>
+                        <td>${parent.school_name || 'N/A'}</td>
+                        <td>${parent.children_count || 0}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="app.viewParent(${parent.id})">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="app.editParent(${parent.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="app.deleteParent(${parent.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    parentsTable.appendChild(row);
+                });
+            }
         } catch (error) {
             console.error('Error loading parents:', error);
             this.showAlert('Failed to load parents', 'error');
         }
     }
+
     async loadClasses() { 
         try {
-            this.showAlert('Loading classes...', 'info'); 
+            const response = await this.apiCall('/classes');
+            if (!response.ok) {
+                throw new Error('Failed to load classes');
+            }
+            
+            const classes = await response.json();
+            const classesTable = document.getElementById('classes-table');
+            
+            if (classesTable) {
+                classesTable.innerHTML = '';
+                
+                classes.forEach(cls => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${cls.name}</td>
+                        <td>
+                            <span class="badge ${cls.education_system === 'anglophone' ? 'badge-blue' : 'badge-green'}">
+                                ${cls.education_system === 'anglophone' ? 'Anglophone' : 'Francophone'}
+                            </span>
+                        </td>
+                        <td>${cls.teacher_name || 'Unassigned'}</td>
+                        <td>${cls.student_count || 0}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="app.viewClass(${cls.id})">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="app.editClass(${cls.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="app.deleteClass(${cls.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    classesTable.appendChild(row);
+                });
+            }
         } catch (error) {
             console.error('Error loading classes:', error);
             this.showAlert('Failed to load classes', 'error');
         }
     }
+
     async loadGrades() { 
         try {
-            this.showAlert('Loading grades...', 'info'); 
+            const response = await this.apiCall('/grades');
+            if (!response.ok) {
+                throw new Error('Failed to load grades');
+            }
+            
+            const grades = await response.json();
+            const gradesTable = document.getElementById('grades-table');
+            
+            if (gradesTable) {
+                gradesTable.innerHTML = '';
+                
+                grades.forEach(grade => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${grade.student_name}</td>
+                        <td>${grade.subject_name}</td>
+                        <td>
+                            <span class="grade-badge ${this.getGradeClass(grade.grade)}">
+                                ${grade.grade}
+                            </span>
+                        </td>
+                        <td>${new Date(grade.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="app.viewGrade(${grade.id})">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="app.editGrade(${grade.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="app.deleteGrade(${grade.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    gradesTable.appendChild(row);
+                });
+            }
         } catch (error) {
             console.error('Error loading grades:', error);
             this.showAlert('Failed to load grades', 'error');
@@ -667,6 +1052,34 @@ class EduManageApp {
         if (modal) {
             modal.style.display = 'none';
         }
+    }
+
+    // Helper methods for UI elements
+    getGradeClass(grade) {
+        const numGrade = parseFloat(grade);
+        if (numGrade >= 90) return 'grade-excellent';
+        if (numGrade >= 80) return 'grade-good';
+        if (numGrade >= 70) return 'grade-average';
+        if (numGrade >= 60) return 'grade-poor';
+        return 'grade-fail';
+    }
+
+    getFileTypeClass(fileType) {
+        const type = fileType.toLowerCase();
+        if (['pdf'].includes(type)) return 'file-pdf';
+        if (['doc', 'docx'].includes(type)) return 'file-doc';
+        if (['xls', 'xlsx'].includes(type)) return 'file-excel';
+        if (['ppt', 'pptx'].includes(type)) return 'file-powerpoint';
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(type)) return 'file-image';
+        return 'file-default';
+    }
+
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
     // School Management Functions

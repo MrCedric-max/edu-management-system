@@ -47,24 +47,34 @@ class EduManageApp {
     initializeLanguageSystem() {
         // Show language modal on first visit
         if (!localStorage.getItem('languageSelected')) {
-            document.getElementById('language-modal').style.display = 'block';
-            document.getElementById('auth-page').style.display = 'none';
-            document.getElementById('main-app').style.display = 'none';
+            const langModal = document.getElementById('language-modal');
+            const authPage = document.getElementById('auth-page');
+            const mainApp = document.getElementById('main-app');
+            if (langModal) langModal.style.display = 'block';
+            if (authPage) authPage.style.display = 'none';
+            if (mainApp) mainApp.style.display = 'none';
         } else {
-            document.getElementById('language-modal').style.display = 'none';
+            const langModal = document.getElementById('language-modal');
+            if (langModal) langModal.style.display = 'none';
             this.showAuthPage();
         }
     }
 
     showAuthPage() {
-        document.getElementById('auth-page').style.display = 'block';
-        document.getElementById('main-app').style.display = 'none';
+        const authPage = document.getElementById('auth-page');
+        const mainApp = document.getElementById('main-app');
+        if (authPage) authPage.style.display = 'block';
+        if (mainApp) mainApp.style.display = 'none';
     }
 
     showMainApp() {
-        document.getElementById('auth-page').style.display = 'none';
-        document.getElementById('main-app').style.display = 'block';
-        document.getElementById('main-app').classList.add('show');
+        const authPage = document.getElementById('auth-page');
+        const mainApp = document.getElementById('main-app');
+        if (authPage) authPage.style.display = 'none';
+        if (mainApp) {
+            mainApp.style.display = 'block';
+            mainApp.classList.add('show');
+        }
     }
 
     setupEventListeners() {
@@ -138,7 +148,8 @@ class EduManageApp {
             if (button) {
                 button.addEventListener('click', () => {
                     const methodName = buttonId.replace('-btn', '').replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-                    const method = this[`show${methodName.charAt(0).toUpperCase() + methodName.slice(1)}Modal`] || 
+                    const methodNameCapitalized = methodName.charAt(0).toUpperCase() + methodName.slice(1);
+                    const method = this[`show${methodNameCapitalized}Modal`] || 
                                  this[methodName] || 
                                  (() => this.showAlert(`${methodName} - Coming soon!`, 'info'));
                     method.call(this);
@@ -487,31 +498,112 @@ class EduManageApp {
                 this.apiCall('/classes')
             ]);
 
+            if (!studentsRes.ok || !teachersRes.ok || !parentsRes.ok || !classesRes.ok) {
+                throw new Error('Failed to load dashboard data');
+            }
+
             const students = await studentsRes.json();
             const teachers = await teachersRes.json();
             const parents = await parentsRes.json();
             const classes = await classesRes.json();
 
-            document.getElementById('total-students').textContent = students.length || 0;
-            document.getElementById('total-teachers').textContent = teachers.length || 0;
-            document.getElementById('total-parents').textContent = parents.length || 0;
-            document.getElementById('total-classes').textContent = classes.length || 0;
+            // Update dashboard counters with null checks
+            const totalStudents = document.getElementById('total-students');
+            const totalTeachers = document.getElementById('total-teachers');
+            const totalParents = document.getElementById('total-parents');
+            const totalClasses = document.getElementById('total-classes');
+
+            if (totalStudents) totalStudents.textContent = students.length || 0;
+            if (totalTeachers) totalTeachers.textContent = teachers.length || 0;
+            if (totalParents) totalParents.textContent = parents.length || 0;
+            if (totalClasses) totalClasses.textContent = classes.length || 0;
         } catch (error) {
             console.error('Error loading dashboard:', error);
+            this.showAlert('Failed to load dashboard data', 'error');
         }
     }
 
     // Placeholder methods for data loading
-    async loadStudents() { this.showAlert('Loading students...', 'info'); }
-    async loadTeachers() { this.showAlert('Loading teachers...', 'info'); }
-    async loadParents() { this.showAlert('Loading parents...', 'info'); }
-    async loadClasses() { this.showAlert('Loading classes...', 'info'); }
-    async loadGrades() { this.showAlert('Loading grades...', 'info'); }
-    async loadQuizzes() { this.showAlert('Loading quizzes...', 'info'); }
-    async loadLessonPlans() { this.showAlert('Loading lesson plans...', 'info'); }
-    async loadFiles() { this.showAlert('Loading files...', 'info'); }
-    async loadNotifications() { this.showAlert('Loading notifications...', 'info'); }
-    async loadProfile() { this.showAlert('Loading profile...', 'info'); }
+    async loadStudents() { 
+        try {
+            this.showAlert('Loading students...', 'info'); 
+        } catch (error) {
+            console.error('Error loading students:', error);
+            this.showAlert('Failed to load students', 'error');
+        }
+    }
+    async loadTeachers() { 
+        try {
+            this.showAlert('Loading teachers...', 'info'); 
+        } catch (error) {
+            console.error('Error loading teachers:', error);
+            this.showAlert('Failed to load teachers', 'error');
+        }
+    }
+    async loadParents() { 
+        try {
+            this.showAlert('Loading parents...', 'info'); 
+        } catch (error) {
+            console.error('Error loading parents:', error);
+            this.showAlert('Failed to load parents', 'error');
+        }
+    }
+    async loadClasses() { 
+        try {
+            this.showAlert('Loading classes...', 'info'); 
+        } catch (error) {
+            console.error('Error loading classes:', error);
+            this.showAlert('Failed to load classes', 'error');
+        }
+    }
+    async loadGrades() { 
+        try {
+            this.showAlert('Loading grades...', 'info'); 
+        } catch (error) {
+            console.error('Error loading grades:', error);
+            this.showAlert('Failed to load grades', 'error');
+        }
+    }
+    async loadQuizzes() { 
+        try {
+            this.showAlert('Loading quizzes...', 'info'); 
+        } catch (error) {
+            console.error('Error loading quizzes:', error);
+            this.showAlert('Failed to load quizzes', 'error');
+        }
+    }
+    async loadLessonPlans() { 
+        try {
+            this.showAlert('Loading lesson plans...', 'info'); 
+        } catch (error) {
+            console.error('Error loading lesson plans:', error);
+            this.showAlert('Failed to load lesson plans', 'error');
+        }
+    }
+    async loadFiles() { 
+        try {
+            this.showAlert('Loading files...', 'info'); 
+        } catch (error) {
+            console.error('Error loading files:', error);
+            this.showAlert('Failed to load files', 'error');
+        }
+    }
+    async loadNotifications() { 
+        try {
+            this.showAlert('Loading notifications...', 'info'); 
+        } catch (error) {
+            console.error('Error loading notifications:', error);
+            this.showAlert('Failed to load notifications', 'error');
+        }
+    }
+    async loadProfile() { 
+        try {
+            this.showAlert('Loading profile...', 'info'); 
+        } catch (error) {
+            console.error('Error loading profile:', error);
+            this.showAlert('Failed to load profile', 'error');
+        }
+    }
 
     // Utility methods
     showAlert(message, type = 'info') {
@@ -569,6 +661,13 @@ class EduManageApp {
     showAddLessonPlanModal() { this.showAlert('Add Lesson Plan modal - Coming soon!', 'info'); }
     toggleFileUpload() { this.showAlert('File Upload - Coming soon!', 'info'); }
     markAllNotificationsRead() { this.showAlert('All notifications marked as read!', 'success');     }
+
+    closeModal() {
+        const modal = document.getElementById('modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
 
     // School Management Functions
     showAddSchoolModal() {
@@ -634,6 +733,18 @@ class EduManageApp {
     async handleAddSchool(e) {
         e.preventDefault();
         
+        // Validate required fields
+        const requiredFields = ['school-name', 'education-system', 'admin-email', 'admin-first-name', 'admin-last-name'];
+        const missingFields = requiredFields.filter(fieldId => {
+            const field = document.getElementById(fieldId);
+            return !field || !field.value.trim();
+        });
+
+        if (missingFields.length > 0) {
+            this.showAlert('Please fill in all required fields', 'error');
+            return;
+        }
+
         const data = {
             name: document.getElementById('school-name').value,
             address: document.getElementById('school-address').value,
@@ -652,25 +763,26 @@ class EduManageApp {
                 body: JSON.stringify(data)
             });
 
+            if (!response.ok) {
+                const errorResult = await response.json();
+                throw new Error(errorResult.error || 'Failed to create school');
+            }
+
             const result = await response.json();
 
-            if (response.ok) {
-                this.showAlert('School created successfully!', 'success');
-                this.closeModal();
-                await this.loadSchools(); // Refresh the schools list
-                
-                // Show school admin credentials
-                this.showAlert(`
-                    School Admin Credentials:<br>
-                    Email: ${result.school_admin.email}<br>
-                    Password: ${result.school_admin.temporary_password}
-                `, 'info');
-            } else {
-                this.showAlert(result.error || 'Failed to create school', 'error');
-            }
+            this.showAlert('School created successfully!', 'success');
+            this.closeModal();
+            await this.loadSchools(); // Refresh the schools list
+            
+            // Show school admin credentials
+            this.showAlert(`
+                School Admin Credentials:<br>
+                Email: ${result.school_admin.email}<br>
+                Password: ${result.school_admin.temporary_password}
+            `, 'info');
         } catch (error) {
             console.error('Error creating school:', error);
-            this.showAlert('Network error. Please try again.', 'error');
+            this.showAlert(error.message || 'Network error. Please try again.', 'error');
         }
     }
 
@@ -704,10 +816,6 @@ class EduManageApp {
             console.error('Error viewing school:', error);
             this.showAlert('Failed to load school details', 'error');
         }
-    }
-
-    closeModal() {
-        document.getElementById('modal').style.display = 'none';
     }
 
     showAlert(message, type = 'info') {

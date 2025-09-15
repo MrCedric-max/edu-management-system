@@ -20,6 +20,7 @@ const quizRoutes = require('./routes/quizzes');
 const fileRoutes = require('./routes/files');
 const notificationRoutes = require('./routes/notifications');
 const lessonPlanRoutes = require('./routes/lesson-plans');
+const cmsRoutes = require('./routes/cms');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -223,6 +224,7 @@ app.use('/api/quizzes', quizRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/lesson-plans', lessonPlanRoutes);
+app.use('/api/cms', cmsRoutes);
 
 // Serve static files from frontend
 app.use(express.static(path.join(__dirname, '../frontend')));

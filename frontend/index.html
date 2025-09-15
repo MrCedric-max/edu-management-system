@@ -174,6 +174,8 @@
                     <a href="#files" class="nav-link" data-translate="files">Files</a>
                     <a href="#notifications" class="nav-link" data-translate="notifications">Notifications</a>
                     <a href="#schools" class="nav-link" data-translate="schools">Schools</a>
+                    <a href="#cms" class="nav-link" data-translate="cms">Content Management</a>
+                    <a href="#analytics" class="nav-link" data-translate="analytics">Analytics</a>
                     <a href="#profile" class="nav-link" data-translate="profile">Profile</a>
                     <button class="btn btn-outline" id="logout-btn" data-translate="logout">Logout</button>
                 </div>
@@ -472,6 +474,165 @@
                                 <!-- Schools will be loaded here -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Content Management Section -->
+            <section id="cms" class="section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 data-translate="cms-title">Content Management System</h2>
+                        <div class="cms-actions">
+                            <button class="btn btn-primary" id="add-content-btn" data-translate="add-content">Add Content</button>
+                            <button class="btn btn-secondary" id="add-package-btn" data-translate="add-package">Create Package</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Tabs -->
+                    <div class="cms-tabs">
+                        <button class="tab-btn active" data-tab="content">Premium Content</button>
+                        <button class="tab-btn" data-tab="packages">Subscription Packages</button>
+                        <button class="tab-btn" data-tab="subscriptions">Active Subscriptions</button>
+                    </div>
+
+                    <!-- Content Tab -->
+                    <div id="content-tab" class="tab-content active">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-translate="title">Title</th>
+                                        <th data-translate="type">Type</th>
+                                        <th data-translate="subject">Subject</th>
+                                        <th data-translate="price">Price</th>
+                                        <th data-translate="status">Status</th>
+                                        <th data-translate="actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="content-table">
+                                    <!-- Content will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Packages Tab -->
+                    <div id="packages-tab" class="tab-content">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-translate="name">Package Name</th>
+                                        <th data-translate="price">Price</th>
+                                        <th data-translate="duration">Duration</th>
+                                        <th data-translate="content-count">Content Items</th>
+                                        <th data-translate="subscriptions">Active Subscriptions</th>
+                                        <th data-translate="actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="packages-table">
+                                    <!-- Packages will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Subscriptions Tab -->
+                    <div id="subscriptions-tab" class="tab-content">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-translate="user">User</th>
+                                        <th data-translate="package">Package/Content</th>
+                                        <th data-translate="amount">Amount</th>
+                                        <th data-translate="status">Status</th>
+                                        <th data-translate="start-date">Start Date</th>
+                                        <th data-translate="end-date">End Date</th>
+                                        <th data-translate="actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subscriptions-table">
+                                    <!-- Subscriptions will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="section">
+                <div class="container">
+                    <h2 data-translate="analytics-title">Analytics & Reporting</h2>
+                    
+                    <!-- KPI Cards -->
+                    <div class="analytics-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-icon">
+                                <i class="fas fa-school"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <h3 data-translate="total-schools">Total Schools</h3>
+                                <p id="total-schools-kpi">0</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <h3 data-translate="total-users">Total Users</h3>
+                                <p id="total-users-kpi">0</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <h3 data-translate="total-content">Total Content</h3>
+                                <p id="total-content-kpi">0</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <h3 data-translate="total-revenue">Total Revenue</h3>
+                                <p id="total-revenue-kpi">$0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Chart Placeholder -->
+                    <div class="chart-container">
+                        <h3 data-translate="revenue-trend">Revenue Trend</h3>
+                        <div id="revenue-chart" class="chart-placeholder">
+                            <p data-translate="chart-coming-soon">Chart visualization coming soon</p>
+                        </div>
+                    </div>
+
+                    <!-- Content Performance -->
+                    <div class="performance-section">
+                        <h3 data-translate="content-performance">Content Performance</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-translate="content-type">Content Type</th>
+                                        <th data-translate="subscriptions">Subscriptions</th>
+                                        <th data-translate="revenue">Revenue</th>
+                                        <th data-translate="trend">Trend</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="performance-table">
+                                    <!-- Performance data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>

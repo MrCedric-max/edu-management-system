@@ -260,6 +260,91 @@ CREATE TABLE IF NOT EXISTS files (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Premium Content Management Tables
+CREATE TABLE IF NOT EXISTS premium_content (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    content_type VARCHAR(50) NOT NULL CHECK (content_type IN ('quiz', 'lesson_plan', 'scheme_of_work', 'pedagogic_project', 'resource')),
+    subject VARCHAR(100),
+    class_level INTEGER CHECK (class_level >= 1 AND class_level <= 6),
+    education_system VARCHAR(20) CHECK (education_system IN ('anglophone', 'francophone')),
+    is_premium BOOLEAN DEFAULT false,
+    price DECIMAL(10,2) DEFAULT 0.00,
+    file_path VARCHAR(500),
+    content_data JSONB,
+    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Subscription Packages
+CREATE TABLE IF NOT EXISTS subscription_packages (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10,2) NOT NULL,
+    duration_days INTEGER NOT NULL,
+    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Package Content Association
+CREATE TABLE IF NOT EXISTS package_content (
+    id SERIAL PRIMARY KEY,
+    package_id INTEGER REFERENCES subscription_packages(id) ON DELETE CASCADE,
+    content_id INTEGER REFERENCES premium_content(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(package_id, content_id)
+);
+
+-- Subscriptions
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    package_id INTEGER REFERENCES subscription_packages(id) ON DELETE SET NULL,
+    content_id INTEGER REFERENCES premium_content(id) ON DELETE SET NULL,
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'expired', 'cancelled')),
+    amount DECIMAL(10,2) NOT NULL,
+    start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_date TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Content Subscriptions (for individual content)
+CREATE TABLE IF NOT EXISTS content_subscriptions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    content_id INTEGER REFERENCES premium_content(id) ON DELETE CASCADE,
+    subscription_id INTEGER REFERENCES subscriptions(id) ON DELETE SET NULL,
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'expired', 'cancelled')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, content_id)
+);
+
+-- System Configuration
+CREATE TABLE IF NOT EXISTS system_config (
+    id SERIAL PRIMARY KEY,
+    config_key VARCHAR(100) UNIQUE NOT NULL,
+    config_value TEXT,
+    description TEXT,
+    updated_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert default system configuration
+INSERT INTO system_config (config_key, config_value, description) VALUES
+('default_language', 'en', 'Default system language'),
+('default_timezone', 'Africa/Douala', 'Default system timezone'),
+('max_file_size', '10485760', 'Maximum file upload size in bytes (10MB)'),
+('allowed_file_types', 'jpeg,jpg,png,gif,pdf,doc,docx,ppt,pptx', 'Allowed file types for uploads'),
+('subscription_grace_period', '7', 'Grace period in days for expired subscriptions')
+ON CONFLICT (config_key) DO NOTHING;
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
@@ -288,6 +373,14 @@ CREATE INDEX IF NOT EXISTS idx_files_uploaded_by ON files(uploaded_by);
 CREATE INDEX IF NOT EXISTS idx_files_school_id ON files(school_id);
 CREATE INDEX IF NOT EXISTS idx_files_related_type ON files(related_type);
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_premium_content_type ON premium_content(content_type);
+CREATE INDEX IF NOT EXISTS idx_premium_content_education_system ON premium_content(education_system);
+CREATE INDEX IF NOT EXISTS idx_premium_content_is_premium ON premium_content(is_premium);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON subscriptions(status);
+CREATE INDEX IF NOT EXISTS idx_content_subscriptions_user_id ON content_subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_content_subscriptions_content_id ON content_subscriptions(content_id);
+CREATE INDEX IF NOT EXISTS idx_users_school_id ON users(school_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
 
 -- Create updated_at trigger function

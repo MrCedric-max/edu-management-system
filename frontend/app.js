@@ -251,15 +251,49 @@ class EduManageApp {
             const response = await this.apiCall('/schools');
             const schools = await response.json();
             
+            // Update school selection dropdown (for registration)
             const select = document.getElementById('school-selection');
-            select.innerHTML = '<option value="">Select a school</option>';
-            
-            schools.forEach(school => {
-                const option = document.createElement('option');
-                option.value = school.id;
-                option.textContent = school.name;
-                select.appendChild(option);
-            });
+            if (select) {
+                select.innerHTML = '<option value="">Select a school</option>';
+                schools.forEach(school => {
+                    const option = document.createElement('option');
+                    option.value = school.id;
+                    option.textContent = school.name;
+                    select.appendChild(option);
+                });
+            }
+
+            // Update schools table (for Super Admin dashboard)
+            const schoolsTable = document.getElementById('schools-table');
+            if (schoolsTable) {
+                schoolsTable.innerHTML = '';
+                
+                schools.forEach(school => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${school.name}</td>
+                        <td>
+                            <span class="badge ${school.education_system === 'anglophone' ? 'badge-blue' : 'badge-green'}">
+                                ${school.education_system === 'anglophone' ? 'Anglophone' : 'Francophone'}
+                            </span>
+                        </td>
+                        <td>${school.address || 'N/A'}</td>
+                        <td>${school.student_count || 0}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="app.viewSchool(${school.id})">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn btn-sm btn-warning" onclick="app.editSchool(${school.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="app.deleteSchool(${school.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    schoolsTable.appendChild(row);
+                });
+            }
         } catch (error) {
             console.error('Error loading schools:', error);
         }
@@ -533,15 +567,172 @@ class EduManageApp {
     showAddGradeModal() { this.showAlert('Add Grade modal - Coming soon!', 'info'); }
     showAddQuizModal() { this.showAlert('Add Quiz modal - Coming soon!', 'info'); }
     showAddLessonPlanModal() { this.showAlert('Add Lesson Plan modal - Coming soon!', 'info'); }
-    showAddSchoolModal() { this.showAlert('Add School modal - Coming soon!', 'info'); }
     toggleFileUpload() { this.showAlert('File Upload - Coming soon!', 'info'); }
-    markAllNotificationsRead() { this.showAlert('All notifications marked as read!', 'success'); }
-}
+    markAllNotificationsRead() { this.showAlert('All notifications marked as read!', 'success');     }
 
-// Initialize the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new EduManageApp();
-});
+    // School Management Functions
+    showAddSchoolModal() {
+        const modal = document.getElementById('modal');
+        const modalBody = document.getElementById('modal-body');
+        
+        modalBody.innerHTML = `
+            <h3>Create New School</h3>
+            <form id="add-school-form">
+                <div class="form-group">
+                    <label for="school-name">School Name *</label>
+                    <input type="text" id="school-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="school-address">Address</label>
+                    <textarea id="school-address" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="school-phone">Phone</label>
+                    <input type="tel" id="school-phone">
+                </div>
+                <div class="form-group">
+                    <label for="school-email">Email</label>
+                    <input type="email" id="school-email">
+                </div>
+                <div class="form-group">
+                    <label for="principal-name">Principal Name</label>
+                    <input type="text" id="principal-name">
+                </div>
+                <div class="form-group">
+                    <label for="education-system">Education System *</label>
+                    <select id="education-system" required>
+                        <option value="">Select System</option>
+                        <option value="anglophone">Anglophone (Class 1-6)</option>
+                        <option value="francophone">Francophone (SIL-CM2)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="admin-email">School Admin Email *</label>
+                    <input type="email" id="admin-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-first-name">Admin First Name *</label>
+                    <input type="text" id="admin-first-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-last-name">Admin Last Name *</label>
+                    <input type="text" id="admin-last-name" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="app.closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create School</button>
+                </div>
+            </form>
+        `;
+        
+        modal.style.display = 'block';
+        
+        // Add form submit listener
+        document.getElementById('add-school-form').addEventListener('submit', this.handleAddSchool.bind(this));
+    }
+
+    async handleAddSchool(e) {
+        e.preventDefault();
+        
+        const data = {
+            name: document.getElementById('school-name').value,
+            address: document.getElementById('school-address').value,
+            phone: document.getElementById('school-phone').value,
+            email: document.getElementById('school-email').value,
+            principal_name: document.getElementById('principal-name').value,
+            education_system: document.getElementById('education-system').value,
+            school_admin_email: document.getElementById('admin-email').value,
+            school_admin_first_name: document.getElementById('admin-first-name').value,
+            school_admin_last_name: document.getElementById('admin-last-name').value
+        };
+
+        try {
+            const response = await this.apiCall('/schools/create-with-admin', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                this.showAlert('School created successfully!', 'success');
+                this.closeModal();
+                await this.loadSchools(); // Refresh the schools list
+                
+                // Show school admin credentials
+                this.showAlert(`
+                    School Admin Credentials:<br>
+                    Email: ${result.school_admin.email}<br>
+                    Password: ${result.school_admin.temporary_password}
+                `, 'info');
+            } else {
+                this.showAlert(result.error || 'Failed to create school', 'error');
+            }
+        } catch (error) {
+            console.error('Error creating school:', error);
+            this.showAlert('Network error. Please try again.', 'error');
+        }
+    }
+
+    async viewSchool(schoolId) {
+        try {
+            const response = await this.apiCall(`/schools/${schoolId}`);
+            const school = await response.json();
+            
+            const modal = document.getElementById('modal');
+            const modalBody = document.getElementById('modal-body');
+            
+            modalBody.innerHTML = `
+                <h3>${school.name}</h3>
+                <div class="school-details">
+                    <p><strong>Education System:</strong> ${school.education_system === 'anglophone' ? 'Anglophone' : 'Francophone'}</p>
+                    <p><strong>Address:</strong> ${school.address || 'N/A'}</p>
+                    <p><strong>Phone:</strong> ${school.phone || 'N/A'}</p>
+                    <p><strong>Email:</strong> ${school.email || 'N/A'}</p>
+                    <p><strong>Principal:</strong> ${school.principal_name || 'N/A'}</p>
+                    <p><strong>School Code:</strong> ${school.school_code}</p>
+                    <p><strong>Students:</strong> ${school.student_count || 0}</p>
+                    <p><strong>Teachers:</strong> ${school.teacher_count || 0}</p>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="app.closeModal()">Close</button>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        } catch (error) {
+            console.error('Error viewing school:', error);
+            this.showAlert('Failed to load school details', 'error');
+        }
+    }
+
+    closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    showAlert(message, type = 'info') {
+        // Create alert element
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.innerHTML = `
+            <span>${message}</span>
+            <button onclick="this.parentElement.remove()" style="float: right; background: none; border: none; font-size: 18px;">&times;</button>
+        `;
+        
+        // Insert at top of main content
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+            mainContent.insertBefore(alert, mainContent.firstChild);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentElement) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+    }
+}
 
 // Add CSS for animations
 const style = document.createElement('style');
